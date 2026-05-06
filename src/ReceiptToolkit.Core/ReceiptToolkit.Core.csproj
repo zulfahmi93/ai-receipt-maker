@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Inter variable font (OFL-1.1) — covers all weights (Thin..Black) via wght axis; SkiaSharp picks instance by SKFontStyle weight. -->
-    <EmbeddedResource Include="Resources\Inter-Variable.ttf" LogicalName="ReceiptToolkit.Core.Resources.Inter-Variable.ttf" />
+    <!-- Inter variable font v4.1 (OFL-1.1) — covers all weights (Thin..Black) via wght axis; SkiaSharp picks instance by SKFontStyle weight. Source: rsms/inter upstream. -->
+    <EmbeddedResource Include="Resources\InterVariable.ttf" LogicalName="ReceiptToolkit.Core.Resources.InterVariable.ttf" />
   </ItemGroup>
 
 </Project>

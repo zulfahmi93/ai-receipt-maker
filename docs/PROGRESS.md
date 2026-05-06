@@ -34,15 +34,15 @@ Full implementation plan: `/Users/zulfahmi/.claude/plans/you-are-a-distinguished
 These overrides matter — re-read them before re-deriving:
 
 1. **xUnit v3** (not v2). Plan said `xunit` 2.9.3; switched to `xunit.v3` 3.2.2. Tests are `OutputType=Exe`. Runner: `xunit.runner.visualstudio` 3.1.5 supports both. Driven by user request — v3 is GA, right call for greenfield.
-2. **Inter Variable Font** (single TTF, all weights via wght axis). Plan said three static TTFs (Regular/Medium/SemiBold). v4.1 zip (33MB) timed out twice, so switched to Google Fonts mirror's variable font (876KB). ADR 0004 documents this. SkiaSharp picks weight via `SKFontStyle`.
+2. ~~Inter three static TTFs~~ Resolved 2026-05-06: **Inter Variable Font v4.1** is the accepted choice — single TTF (`InterVariable.ttf`, 879,708 bytes) sourced directly from rsms/inter upstream v4.1 release zip (not the Google Fonts mirror — earlier mirror copy was outdated). All weights via the `wght` axis selected through `SKFontStyle`. Authoritative reference: ADR 0004. Plan's three-static-TTF wording is superseded; renderer code (Phase 3) targets the variable font directly.
 3. **`.sln` not `.slnx`**. `dotnet new sln` defaulted to slnx but `dotnet test` in SDK 10.0.105 can't process slnx. Recreated as classic sln. Use `receipt-toolkit.sln`.
-4. **Flutter 3.41.7 installed** (plan target 3.41.9). Same minor, both stable. Acceptable — `flutter upgrade` to bump if needed.
+4. ~~Flutter 3.41.7 installed~~ Resolved 2026-05-06: user upgraded to **Flutter 3.41.9 stable** (matches plan target). Verified via `flutter --version`.
 5. **No `FluentAssertions`**. v8+ went commercial; v7 last MIT. Using plain xUnit `Assert` to avoid future license risk.
-6. **No `System.CommandLine`**. Still RC, plan policy forbids preview. CLI will use manual arg parsing.
+6. ~~No `System.CommandLine`~~ Resolved 2026-05-06: **`System.CommandLine` 2.0.7 stable** (released 2026-04-21) pinned in `Directory.Packages.props`. Phase 4 CLI uses it as planned.
 7. **Bot template Worker.cs deleted** — fired CA1848/CA1727. Replaced with stub `Program.cs`. Phase 6 writes the real worker.
-8. **Pubspec deps bumped by linter** (file_picker beta, share_plus 13.x, etc.). Linter-applied, intentional, leave alone.
-9. **Phase 0 NoWarn-conditional was broken** (caught Phase 1). `Directory.Build.props` had `<PropertyGroup Condition="…OR '$(OutputType)' == 'Exe'">` to suppress CS1591 on test/exe projects, but `OutputType` is set inside the csproj body and isn't visible during props evaluation, so the suppression never applied. Phase 0 built clean only because no test project had public symbols yet. Fix: moved the conditional `NoWarn>$(NoWarn);CS1591;CA1707` into a new `Directory.Build.targets` (loads after csproj). CA1707 also added because xUnit test method names commonly use underscores (e.g. `T1_1_ParsesMinimalJson`).
-10. **SchemaVersion absent-key detection** (Phase 1). System.Text.Json source-gen writes the CLR default (`0`) when `schemaVersion` is missing from JSON, ignoring the property initializer (`= 1`). `ReceiptData.FromJson` now uses a `JsonNode.Parse(json)?["schemaVersion"] is not null` pre-pass to distinguish a genuinely-absent key from an explicit `"schemaVersion": 0`. Only the absent case is rewritten to `1`; an explicit `0` is preserved (TODO: revisit if a legitimate schema version 0 ever exists).
+8. ~~Pubspec deps bumped by linter~~ Resolved 2026-05-06: **Flutter pubspec deps curated to latest** by the user — `http ^1.6.0`, `provider ^6.1.5+1`, `share_plus ^13.1.0`, `path_provider ^2.1.5`, `cupertino_icons ^1.0.9`, `flutter_lints ^6.0.0`, `file_picker ^12.0.0-beta.1` (prerelease, deliberate). Don't downgrade.
+9. ~~Phase 0 NoWarn-conditional was broken~~ Resolved 2026-05-06: **`NoWarn` moved to `Directory.Build.targets`** (loads after csproj sets `OutputType`/`IsTestProject`). `Directory.Build.props` originally had a conditional `<PropertyGroup Condition="…OR '$(OutputType)' == 'Exe'">` that evaluated before the csproj body, so the suppression never applied — Phase 0 built clean only because no test project had public symbols. Targets now suppresses `CS1591;CA1707` for test/exe projects only. CA1707 added because xUnit test method names commonly use underscores (e.g. `T1_1_ParsesMinimalJson`).
+10. ~~SchemaVersion sentinel hack~~ Resolved 2026-05-06: **Replaced with `[JsonConstructor]` + parameter default**. `ReceiptData(int schemaVersion = 1)` carries `[JsonConstructor]`; System.Text.Json honors the parameter default when JSON omits the field, and an explicit `"schemaVersion": 0` is preserved exactly. No `JsonNode` pre-pass, no second parse, no sentinel — STJ's canonical pattern for "default when missing".
 
 ## Hard rules (don't recompromise)
 
@@ -57,7 +57,7 @@ These overrides matter — re-read them before re-deriving:
 | Component | Version |
 |---|---|
 | .NET SDK | 10.0.105 (LTS, EOL 2028-11-14) |
-| Flutter | 3.41.7 stable (target 3.41.9) |
+| Flutter | 3.41.9 stable |
 | SkiaSharp | 3.119.2 |
 | QRCoder | 1.8.0 |
 | Telegram.Bot | 22.9.6.2 |
@@ -89,7 +89,7 @@ ai-receipt-maker/
 ├── examples/sample_receipt_data.json          primary fixture (matches mockup)
 ├── src/
 │   ├── ReceiptToolkit.Contracts/              EMPTY — Phase 1 fills
-│   ├── ReceiptToolkit.Core/                   stub + Inter-Variable.ttf in Resources/
+│   ├── ReceiptToolkit.Core/                   stub + InterVariable.ttf in Resources/ (rsms/inter v4.1)
 │   ├── ReceiptToolkit.Cli/                    templated Program.cs (Hello World)
 │   ├── ReceiptToolkit.Api/                    templated Program.cs (Hello World)
 │   └── ReceiptToolkit.TelegramBot/            stub Program.cs (empty host)

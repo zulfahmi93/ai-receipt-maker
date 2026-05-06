@@ -1,5 +1,5 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using ReceiptToolkit.Contracts.Json;
 
 namespace ReceiptToolkit.Contracts;
@@ -14,14 +14,24 @@ namespace ReceiptToolkit.Contracts;
 ///     comparison via <see cref="System.Text.Json.Nodes.JsonNode.DeepEquals"/> instead
 ///     (see T1.7).
 ///   </para>
-///   <!-- TODO (Phase 2+): if deep value equality over collections becomes a hard requirement,
-///        override Equals/GetHashCode or introduce a dedicated structural comparer rather than
-///        extending the JSON round-trip workaround. -->
 /// </remarks>
 public sealed record ReceiptData
 {
+    /// <summary>Constructs a <see cref="ReceiptData"/> with an explicit schema version.</summary>
+    /// <param name="schemaVersion">
+    ///   Document schema version. Defaults to <c>1</c> when the JSON omits the
+    ///   <c>schemaVersion</c> field, because System.Text.Json honors the parameter default
+    ///   instead of the property initializer when the constructor is annotated with
+    ///   <see cref="JsonConstructorAttribute"/>.
+    /// </param>
+    [JsonConstructor]
+    public ReceiptData(int schemaVersion = 1)
+    {
+        SchemaVersion = schemaVersion;
+    }
+
     /// <summary>Schema version of the receipt document format. Defaults to <c>1</c>.</summary>
-    public int SchemaVersion { get; init; } = 1;
+    public int SchemaVersion { get; init; }
 
     /// <summary>Business information shown in the receipt header.</summary>
     public BusinessInfo Business { get; init; } = new();
@@ -61,32 +71,13 @@ public sealed record ReceiptData
 
     /// <summary>Deserializes a <see cref="ReceiptData"/> instance from a JSON string.</summary>
     /// <remarks>
-    ///   When <c>schemaVersion</c> is absent from the JSON, the property defaults to <c>1</c>.
-    ///   An explicit <c>"schemaVersion": 0</c> is preserved as-is; only a truly absent key
-    ///   triggers the default.  Detection uses a <see cref="JsonNode"/> pre-pass so the
-    ///   sentinel value (CLR default <c>0</c>) is never confused with a deliberate zero.
+    ///   When the JSON omits <c>schemaVersion</c>, the value defaults to <c>1</c> via the
+    ///   <see cref="JsonConstructorAttribute"/>-annotated constructor's parameter default.
+    ///   An explicit <c>"schemaVersion": 0</c> is preserved as-is.
     /// </remarks>
-    public static ReceiptData FromJson(string json)
-    {
-        var data = JsonSerializer.Deserialize(json, ReceiptJsonContext.Default.ReceiptData)
+    public static ReceiptData FromJson(string json) =>
+        JsonSerializer.Deserialize(json, ReceiptJsonContext.Default.ReceiptData)
             ?? throw new JsonException("Receipt JSON deserialized to null.");
-
-        // The source-gen deserializer writes the CLR default (0) when schemaVersion is absent
-        // from the JSON, ignoring the C# property initializer default (1).  Apply the default
-        // only when the key was genuinely absent — not when the caller explicitly wrote 0.
-        // TODO: if a legitimate schemaVersion 0 ever exists, replace this with a proper
-        //       versioned migration strategy rather than extending the sentinel pattern.
-        if (data.SchemaVersion == 0)
-        {
-            var schemaVersionPresent =
-                JsonNode.Parse(json)?["schemaVersion"] is not null;
-
-            if (!schemaVersionPresent)
-                return data with { SchemaVersion = 1 };
-        }
-
-        return data;
-    }
 
     /// <summary>Serializes this instance to a compact camelCase JSON string.</summary>
     public string ToJson() =>
