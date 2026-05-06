@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ReceiptToolkit.Cli</RootNamespace>
+    <AssemblyName>receipt-toolkit</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReceiptToolkit.Core\ReceiptToolkit.Core.csproj" />
+  </ItemGroup>
+
+</Project>

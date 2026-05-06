@@ -1,0 +1,47 @@
+# macOS
+.DS_Store
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.csproj.user
+[Tt]est[Rr]esult*/
+[Cc]overage*/
+*.coverage
+*.coveragexml
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Output
+out/
+output/
+tests/output/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Pods/
+ios/.symlinks/
+android/.gradle/
+android/local.properties
+**/Flutter/Flutter.podspec
+**/Flutter/flutter_export_environment.sh
+**/Flutter/Generated.xcconfig
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Env
+.env
+.env.local

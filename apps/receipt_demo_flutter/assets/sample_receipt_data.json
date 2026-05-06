@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "business": {
+    "businessName": "Elevate Studio",
+    "businessTagline": "Every detail, exceptional.",
+    "businessLogoUrl": null,
+    "businessAddress": "123 Main Street, Kuala Lumpur",
+    "businessEmail": "hello@example.com",
+    "businessPhone": "+60 12-345 6789",
+    "businessWebsite": "example.com",
+    "socialHandle": "@elevatestudio",
+    "taxRegistrationNumber": "SST-123456789"
+  },
+  "receipt": {
+    "receiptTitle": "RECEIPT",
+    "receiptNumber": "INV-2025-06789",
+    "dateTime": "2025-05-18T10:42:00",
+    "branchName": "Main Branch",
+    "terminalId": "POS-03",
+    "orderNumber": "ORD-1024",
+    "referenceNumber": "REF-778812"
+  },
+  "customer": {
+    "customerName": "Walk-in Customer",
+    "customerId": null,
+    "customerPhone": null,
+    "customerEmail": null
+  },
+  "cashier": {
+    "cashierName": "Alex Johnson",
+    "cashierId": "EMP-001"
+  },
+  "items": [
+    {
+      "sku": "SKU-001",
+      "name": "Premium Notebook",
+      "description": "A5 hardcover",
+      "quantity": 1,
+      "unit": "pcs",
+      "unitPrice": "12.50",
+      "discount": "0",
+      "taxRate": 0.0825,
+      "total": "12.50"
+    },
+    {
+      "sku": "SKU-002",
+      "name": "Ballpoint Pen Set",
+      "description": null,
+      "quantity": 1,
+      "unit": "pcs",
+      "unitPrice": "6.90",
+      "discount": "0",
+      "taxRate": 0.0825,
+      "total": "6.90"
+    },
+    {
+      "sku": "SKU-003",
+      "name": "Ceramic Coffee Mug",
+      "description": null,
+      "quantity": 1,
+      "unit": "pcs",
+      "unitPrice": "14.00",
+      "discount": "0",
+      "taxRate": 0.0825,
+      "total": "14.00"
+    },
+    {
+      "sku": "SKU-004",
+      "name": "Canvas Tote Bag",
+      "description": null,
+      "quantity": 1,
+      "unit": "pcs",
+      "unitPrice": "18.00",
+      "discount": "0",
+      "taxRate": 0.0825,
+      "total": "18.00"
+    },
+    {
+      "sku": "SKU-005",
+      "name": "Thank You Card",
+      "description": null,
+      "quantity": 1,
+      "unit": "pcs",
+      "unitPrice": "5.00",
+      "discount": "0",
+      "taxRate": 0.0825,
+      "total": "5.00"
+    }
+  ],
+  "totals": {
+    "subtotal": "56.40",
+    "discountTotal": "4.00",
+    "serviceCharge": "0",
+    "taxLabel": "Tax (8.25%)",
+    "taxTotal": "4.33",
+    "roundingAdjustment": "0",
+    "grandTotal": "56.73"
+  },
+  "payments": [
+    {
+      "method": "Visa Credit Card",
+      "amount": "56.73",
+      "cardLastFour": "1234",
+      "authCode": "A7B3K9",
+      "transactionId": "TXN-984422"
+    }
+  ],
+  "qr": {
+    "qrCodeValue": "https://example.com/receipt/INV-2025-06789",
+    "qrCodeLabel": "Scan to view receipt",
+    "reviewUrl": "https://example.com/review",
+    "digitalReceiptUrl": "https://example.com/r/INV-2025-06789",
+    "supportUrl": "https://example.com/support"
+  },
+  "footer": {
+    "thankYouMessage": "Thank you!",
+    "footerNote": "We appreciate your support.",
+    "returnPolicy": "Returns accepted within 7 days with receipt.",
+    "legalNote": "This receipt is computer generated and does not require a signature.",
+    "customFooterLines": [
+      "Follow us @elevatestudio",
+      "Visit elevatestudio.com"
+    ]
+  },
+  "theme": {
+    "paperColor": "#FAF8F3",
+    "textColor": "#202020",
+    "mutedTextColor": "#6B6B6B",
+    "accentColor": "#3F6F63",
+    "dividerColor": "#B8C8C1",
+    "highlightColor": "#E8F0EC",
+    "backgroundColor": "#F5F2EC"
+  },
+  "layout": {
+    "receiptWidth": 360,
+    "padding": 28,
+    "sectionGap": 18,
+    "borderRadius": 16,
+    "showShadow": true,
+    "showPerforatedBottom": true,
+    "dividerStyle": "dashed"
+  },
+  "options": {
+    "currency": "MYR",
+    "currencySymbol": "RM",
+    "locale": "ms-MY",
+    "dateFormat": "dd MMM yyyy",
+    "timeFormat": "hh:mm a",
+    "showItemDescription": false,
+    "showSku": false,
+    "showTaxBreakdown": true,
+    "showQrCode": true,
+    "showLogo": true,
+    "showFooterContact": true,
+    "autoCalculateTotals": true
+  }
+}
