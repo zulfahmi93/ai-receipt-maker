@@ -1,0 +1,9 @@
+<Project>
+  <!-- Loads after the csproj body has set OutputType / IsTestProject, so the
+       condition actually evaluates correctly (Directory.Build.props loads too early). -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' OR '$(OutputType)' == 'Exe'">
+    <!-- CS1591: missing XML doc — non-public test/exe API doesn't need it.
+         CA1707: identifiers with underscores — common in xUnit test method names. -->
+    <NoWarn>$(NoWarn);CS1591;CA1707</NoWarn>
+  </PropertyGroup>
+</Project>

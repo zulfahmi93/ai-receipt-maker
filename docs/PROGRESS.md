@@ -13,7 +13,7 @@ Full implementation plan: `/Users/zulfahmi/.claude/plans/you-are-a-distinguished
 | # | Phase | Status | Notes |
 |---|---|---|---|
 | 0 | Solution scaffold (no TDD) | **DONE** | All 10 .NET projects + Flutter app build green, 0 warnings |
-| 1 | Contracts + JSON parsing (T1.1–T1.7) | pending | Start here |
+| 1 | Contracts + JSON parsing (T1.1–T1.7) | **DONE** | 7/7 tests, build 0/0. Phase 0 had a latent NoWarn-conditional bug that surfaced here — fixed (see divergences #9, #10) |
 | 2 | Validation rules (T2.1–T2.14) | pending | |
 | 2b | Calculation (T2b.1–T2b.10) | pending | |
 | 2c | Formatting (T2c.1–T2c.5) | pending | |
@@ -41,6 +41,8 @@ These overrides matter — re-read them before re-deriving:
 6. **No `System.CommandLine`**. Still RC, plan policy forbids preview. CLI will use manual arg parsing.
 7. **Bot template Worker.cs deleted** — fired CA1848/CA1727. Replaced with stub `Program.cs`. Phase 6 writes the real worker.
 8. **Pubspec deps bumped by linter** (file_picker beta, share_plus 13.x, etc.). Linter-applied, intentional, leave alone.
+9. **Phase 0 NoWarn-conditional was broken** (caught Phase 1). `Directory.Build.props` had `<PropertyGroup Condition="…OR '$(OutputType)' == 'Exe'">` to suppress CS1591 on test/exe projects, but `OutputType` is set inside the csproj body and isn't visible during props evaluation, so the suppression never applied. Phase 0 built clean only because no test project had public symbols yet. Fix: moved the conditional `NoWarn>$(NoWarn);CS1591;CA1707` into a new `Directory.Build.targets` (loads after csproj). CA1707 also added because xUnit test method names commonly use underscores (e.g. `T1_1_ParsesMinimalJson`).
+10. **SchemaVersion absent-key detection** (Phase 1). System.Text.Json source-gen writes the CLR default (`0`) when `schemaVersion` is missing from JSON, ignoring the property initializer (`= 1`). `ReceiptData.FromJson` now uses a `JsonNode.Parse(json)?["schemaVersion"] is not null` pre-pass to distinguish a genuinely-absent key from an explicit `"schemaVersion": 0`. Only the absent case is rewritten to `1`; an explicit `0` is preserved (TODO: revisit if a legitimate schema version 0 ever exists).
 
 ## Hard rules (don't recompromise)
 
