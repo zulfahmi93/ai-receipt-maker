@@ -14,7 +14,7 @@ Full implementation plan: `/Users/zulfahmi/.claude/plans/you-are-a-distinguished
 |---|---|---|---|
 | 0 | Solution scaffold (no TDD) | **DONE** | All 10 .NET projects + Flutter app build green, 0 warnings |
 | 1 | Contracts + JSON parsing (T1.1–T1.7) | **DONE** | 7/7 tests, build 0/0. Phase 0 had a latent NoWarn-conditional bug that surfaced here — fixed (see divergences #9, #10) |
-| 2 | Validation rules (T2.1–T2.14) | pending | |
+| 2 | Validation rules (T2.1–T2.14) | **DONE** | 16/16 tests (12 Fact + 2 Theory pairs), build 0/0. 12 rule classes under `Core/Validation/Rules/`, `ReceiptValidator` aggregates all errors. `ValidationError` record landed in Contracts; `CurrencyTable` lookup landed in `Core/Currency/`. |
 | 2b | Calculation (T2b.1–T2b.10) | pending | |
 | 2c | Formatting (T2c.1–T2c.5) | pending | |
 | 3 | Render primitives (T3.1–T3.9) | pending | |
@@ -133,7 +133,7 @@ Refactor at **cluster boundary**, not per-task. Targeted test runs (`--filter`),
 
 ## Build sanity
 
-Last verified: 2026-05-06.
+Last verified: 2026-05-07 (Phase 2 close).
 
 ```bash
 dotnet build receipt-toolkit.sln
