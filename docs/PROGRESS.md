@@ -15,7 +15,7 @@ Full implementation plan: `/Users/zulfahmi/.claude/plans/you-are-a-distinguished
 | 0 | Solution scaffold (no TDD) | **DONE** | All 10 .NET projects + Flutter app build green, 0 warnings |
 | 1 | Contracts + JSON parsing (T1.1–T1.7) | **DONE** | 7/7 tests, build 0/0. Phase 0 had a latent NoWarn-conditional bug that surfaced here — fixed (see divergences #9, #10) |
 | 2 | Validation rules (T2.1–T2.14) | **DONE** | 16/16 tests (12 Fact + 2 Theory pairs), build 0/0. 12 rule classes under `Core/Validation/Rules/`, `ReceiptValidator` aggregates all errors. `ValidationError` record landed in Contracts; `CurrencyTable` lookup landed in `Core/Currency/`. |
-| 2b | Calculation (T2b.1–T2b.10) | pending | |
+| 2b | Calculation (T2b.1–T2b.10) | **DONE** | 11/11 cases (10 tasks; T2b.10 Theory expands to 2). `ReceiptCalculator` static class under `Core/Calculation/`. Decimal end-to-end, `MidpointRounding.ToEven`, currency decimal-places via `CurrencyTable`. `AutoCalculateTotals=false` returns input unchanged. Idempotence resolved with a "subtotal fingerprint" because the contract has a single `ReceiptTotals.DiscountTotal` that must double as receipt-level seed (input) and summed value (output) — see XML doc on `CalculateTotals`. Future contract change (separate `ReceiptLevelDiscount` field) would let the fingerprint be deleted; deferred. |
 | 2c | Formatting (T2c.1–T2c.5) | pending | |
 | 3 | Render primitives (T3.1–T3.9) | pending | |
 | 3b | Section renderers (T3b.1–T3b.23) | pending | |
@@ -133,7 +133,7 @@ Refactor at **cluster boundary**, not per-task. Targeted test runs (`--filter`),
 
 ## Build sanity
 
-Last verified: 2026-05-07 (Phase 2 close).
+Last verified: 2026-05-07 (Phase 2b close).
 
 ```bash
 dotnet build receipt-toolkit.sln
