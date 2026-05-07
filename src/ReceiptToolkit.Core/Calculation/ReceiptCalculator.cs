@@ -29,9 +29,10 @@ public static class ReceiptCalculator
     ///     <c>subtotal − discountTotal + taxTotal + serviceCharge + roundingAdjustment</c>.
     ///   </para>
     ///   <para>
-    ///     All rounding uses <see cref="MidpointRounding.ToEven"/> (banker's rounding) so that
-    ///     exact <c>.x5</c> midpoints round to the nearest even digit (e.g. <c>1.245</c> rounds
-    ///     to <c>1.24</c> while <c>1.255</c> rounds to <c>1.26</c>). The number of decimal
+    ///     All rounding uses <see cref="MidpointRounding.AwayFromZero"/> (round-half-up, the
+    ///     consumer-receipt norm — see Japanese 四捨五入 and equivalent rules under most tax
+    ///     authorities). Exact <c>.x5</c> midpoints round away from zero (e.g. <c>1.245</c>
+    ///     rounds to <c>1.25</c> and <c>1.255</c> rounds to <c>1.26</c>). The number of decimal
     ///     places comes from <see cref="CurrencyTable.TryGet(string, out CurrencyInfo?)"/> for
     ///     the configured <see cref="ReceiptOptions.Currency"/>, defaulting to <c>2</c> when
     ///     the currency is missing or unknown (including a <see langword="null"/> or empty code).
@@ -73,7 +74,7 @@ public static class ReceiptCalculator
             ? info!.DecimalPlaces
             : 2;
 
-        decimal Round(decimal value) => Math.Round(value, decimalPlaces, MidpointRounding.ToEven);
+        decimal Round(decimal value) => Math.Round(value, decimalPlaces, MidpointRounding.AwayFromZero);
 
         var subtotalAccum = 0m;
         var taxAccum = 0m;

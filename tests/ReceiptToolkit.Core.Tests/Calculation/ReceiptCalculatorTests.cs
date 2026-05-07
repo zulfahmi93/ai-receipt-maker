@@ -4,7 +4,7 @@
 //             rounding-adjustment pass-through, manual-totals respected when
 //             AutoCalculateTotals=false, idempotence under repeat invocation,
 //             multi-currency rounding (USD/MYR=2dp, JPY=0dp), and explicit
-//             MidpointRounding.ToEven (banker's) midpoint behaviour.
+//             MidpointRounding.AwayFromZero (round-half-up) midpoint behaviour.
 
 using System.Text.Json.Nodes;
 using ReceiptToolkit.Contracts;
@@ -261,16 +261,16 @@ public sealed class ReceiptCalculatorTests
         Assert.Equal(0m, jpy.Totals.GrandTotal - decimal.Truncate(jpy.Totals.GrandTotal));
     }
 
-    // T2b.10 — Banker's rounding (MidpointRounding.ToEven) at exact 2dp midpoints.
+    // T2b.10 — Round-half-up (MidpointRounding.AwayFromZero) at exact 2dp midpoints.
     //           Construct lineGross * (decimal)taxRate to land on an exact .xx5 midpoint:
-    //             lineGross 12.45 × 0.10 = 1.245 -> banker's 2dp -> 1.24 (4 is even).
-    //             lineGross 12.55 × 0.10 = 1.255 -> banker's 2dp -> 1.26 (round to even 6).
-    //           Note: the calculator's XML doc must declare MidpointRounding.ToEven; that
+    //             lineGross 12.45 × 0.10 = 1.245 -> round-half-up 2dp -> 1.25.
+    //             lineGross 12.55 × 0.10 = 1.255 -> round-half-up 2dp -> 1.26.
+    //           Note: the calculator's XML doc must declare MidpointRounding.AwayFromZero; that
     //           documentation check is enforced in the REFACTOR pass, not this test.
     [Theory]
-    [InlineData(12.45, 1.24)]
+    [InlineData(12.45, 1.25)]
     [InlineData(12.55, 1.26)]
-    public void T2b_10_BankersRounding_AppliesToTaxTotalAtMidpoints(decimal unitPrice, decimal expectedTax)
+    public void T2b_10_HalfUpRounding_AppliesToTaxTotalAtMidpoints(decimal unitPrice, decimal expectedTax)
     {
         var data = new ReceiptData
         {
