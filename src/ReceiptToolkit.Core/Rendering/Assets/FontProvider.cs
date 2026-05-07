@@ -17,10 +17,11 @@ namespace ReceiptToolkit.Core.Rendering.Assets;
 ///     <see cref="FontProvider"/> and disposed when <see cref="Dispose"/> is called.
 ///   </para>
 ///   <para>
-///     Weight selection via the <c>wght</c> axis is supported by the Inter variable font.
-///     The current Phase 3 implementation loads the VF default instance for every weight
-///     request; the <c>weight</c> parameter of <see cref="GetTypeface"/> is reserved for
-///     full axis selection in Phase 3b.
+///     Weight selection runs through SkiaSharp 4's
+///     <see cref="SKTypeface.Clone(System.ReadOnlySpan{SKFontVariationPositionCoordinate})"/>
+///     against the VF's <c>wght</c> axis.  The base typeface (loaded from the embedded
+///     stream) is owned separately from the cache; cloned per-weight instances live in
+///     the cache and are disposed alongside it.
 ///   </para>
 /// </remarks>
 public sealed class FontProvider : IDisposable
@@ -28,7 +29,11 @@ public sealed class FontProvider : IDisposable
     private const string EmbeddedResourceName = "ReceiptToolkit.Core.Resources.InterVariable.ttf";
     private const string SupportedFamily = "Inter";
 
+    private static readonly SKFourByteTag WeightAxisTag = new(
+        ((uint)'w' << 24) | ((uint)'g' << 16) | ((uint)'h' << 8) | (uint)'t');
+
     private readonly byte[] _fontBytes;
+    private readonly Lazy<SKTypeface> _baseTypeface;
     private readonly ConcurrentDictionary<(string Family, SKFontStyleWeight Weight), SKTypeface> _cache = new();
     private bool _disposed;
 
@@ -53,6 +58,15 @@ public sealed class FontProvider : IDisposable
         using var ms = new MemoryStream();
         stream.CopyTo(ms);
         _fontBytes = ms.ToArray();
+
+        _baseTypeface = new Lazy<SKTypeface>(
+            () =>
+            {
+                using var bs = new MemoryStream(_fontBytes, writable: false);
+                return SKTypeface.FromStream(bs, index: 0)
+                    ?? throw new InvalidOperationException("Failed to create Inter typeface from embedded resource.");
+            },
+            LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     /// <summary>
@@ -65,8 +79,8 @@ public sealed class FontProvider : IDisposable
     /// </param>
     /// <param name="weight">
     ///   The desired font weight (e.g. <see cref="SKFontStyleWeight.Normal"/>,
-    ///   <see cref="SKFontStyleWeight.Bold"/>).  Reserved for full variable-font axis
-    ///   selection in Phase 3b; the current implementation returns the VF default instance.
+    ///   <see cref="SKFontStyleWeight.Bold"/>).  Resolved against the Inter VF's
+    ///   <c>wght</c> axis via <see cref="SKTypeface.Clone(System.ReadOnlySpan{SKFontVariationPositionCoordinate})"/>.
     /// </param>
     /// <returns>
     ///   A cached <see cref="SKTypeface"/> owned by this <see cref="FontProvider"/>.
@@ -74,6 +88,10 @@ public sealed class FontProvider : IDisposable
     /// </returns>
     /// <exception cref="ArgumentException">
     ///   Thrown when <paramref name="family"/> is not <c>"Inter"</c>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   Thrown when SkiaSharp cannot select the requested wght-axis instance from the
+    ///   embedded variable font.
     /// </exception>
     /// <exception cref="ObjectDisposedException">
     ///   Thrown when called after <see cref="Dispose"/> has been called.
@@ -89,15 +107,27 @@ public sealed class FontProvider : IDisposable
                 nameof(family));
         }
 
-        return _cache.GetOrAdd(
-            (family, weight),
-            static (_, bytes) =>
-            {
-                using var ms = new MemoryStream(bytes, writable: false);
-                return SKTypeface.FromStream(ms, index: 0)
-                    ?? throw new InvalidOperationException("Failed to create Inter typeface from embedded resource.");
-            },
-            _fontBytes);
+        return _cache.GetOrAdd((family, weight), CreateTypefaceForWeight);
+    }
+
+    private SKTypeface CreateTypefaceForWeight((string Family, SKFontStyleWeight Weight) key)
+    {
+        SKTypeface baseTf = _baseTypeface.Value;
+
+        Span<SKFontVariationPositionCoordinate> position =
+        [
+            new SKFontVariationPositionCoordinate { Axis = WeightAxisTag, Value = (int)key.Weight },
+        ];
+
+        SKTypeface? resolved = baseTf.Clone(position);
+        if (resolved is null || resolved.FontWeight != (int)key.Weight)
+        {
+            resolved?.Dispose();
+            throw new InvalidOperationException(
+                $"SkiaSharp could not select the Inter VF wght-axis instance for {key.Weight}.");
+        }
+
+        return resolved;
     }
 
     /// <summary>
@@ -120,5 +150,10 @@ public sealed class FontProvider : IDisposable
         }
 
         _cache.Clear();
+
+        if (_baseTypeface.IsValueCreated)
+        {
+            _baseTypeface.Value.Dispose();
+        }
     }
 }

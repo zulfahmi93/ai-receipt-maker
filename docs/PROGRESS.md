@@ -50,7 +50,9 @@ These overrides matter — re-read them before re-deriving:
 
 14. **T3.5 FamilyName assertion relaxed from `==` to `Contains` (case-insensitive).** Decided 2026-05-07 at Phase 3 close. SkiaSharp 3.119.2 reports the Inter variable font's `FamilyName` as `"Inter Variable"` (matches the VF's typographic family record), not the bare `"Inter"` the original RED spec assumed. Static Inter cuts report `"Inter"`. The test's intent is "embedded font loaded, not a system fallback" — `Contains("Inter")` proves that for both VF and any future static-cut fallback without re-flapping if SkiaSharp's name-table mapping ever changes. Inter VF (rsms/inter v4.1, divergence #2 / ADR 0004) remains the embedded asset; no font swap.
 
-15. **FontProvider weight axis selection deferred to Phase 3b.** Decided 2026-05-07 at Phase 3 close. `FontProvider.GetTypeface(string family, SKFontStyleWeight weight)` accepts the `weight` parameter, caches per `(family, weight)` key, but currently returns the Inter VF default instance for every weight value. Phase 3 tests (T3.5, T3.6) only exercise `Normal`; the multi-weight path will be exercised by Phase 3b section renderers (header bold, total bar semibold, etc.) and is the right cluster to add the `SKFontManager.MatchTypeface(baseTf, SKFontStyle(weight, ...))` axis-selection call alongside its first real consumer. XML doc on `GetTypeface` flags the deferral upfront; `weight` is part of the cache key so a Phase 3b implementation can swap the resolution logic without breaking T3.6's per-key caching contract.
+15. ~~FontProvider weight axis selection deferred to Phase 3b.~~ Resolved 2026-05-08 at Phase 3b open: implemented via `SKTypeface.Clone(ReadOnlySpan<SKFontVariationPositionCoordinate>)` on the Inter VF's `wght` axis. Two new tests landed alongside (`FontProvider_Bold_SelectsWeightAxis` → 700, `FontProvider_SemiBold_SelectsWeightAxis` → 600); both also keep the `Contains("Inter")` embedded-font assertion from T3.5. The originally-suggested `SKFontManager.MatchTypeface` API does not exist on SkiaSharp 3.119.2's net8.0 wrapper (only the android target's xml docs mention it; the actual desktop dll lacks the symbol), and the same wrapper exposes no `SKFontArguments` / VF axis types at all. See divergence #16 for the SkiaSharp version bump that unlocked this.
+
+16. **SkiaSharp upgraded to `4.147.0-preview.1.1`.** Decided 2026-05-08 at Phase 3b open. The `3.119.2` net8.0 .NET wrapper does not expose the variable-font axis API surface (`SKFontArguments`, `SKFontVariationAxis`, `SKFontVariationPositionCoordinate`, `SKTypeface.Clone(...)`) needed to satisfy divergence #15's "all weights via the wght axis" contract — the methods only land in 4.0+ (SkiaSharp 4 / Skia M147 binding). Per [SkiaSharp 4 preview announcement](https://devblogs.microsoft.com/dotnet/welcome-to-skia-sharp-40-preview1/) and the [v4.147.0-preview.1.1 release](https://github.com/mono/SkiaSharp/releases/tag/v4.147.0-preview.1.1), this preview ships full OpenType variable-font axis control. All four pins (`SkiaSharp` + `SkiaSharp.NativeAssets.{macOS,Linux,Win32}`) bumped together in `Directory.Packages.props`. Phase 3 primitive tests (LogoResolver, FontProvider Normal-weight, TextMeasurer, QrPainter) re-verified green on v4 with no source changes — only `FontProvider` GREEN code uses the new axis API. **Risk:** preview bits move; revisit at next SkiaSharp 4 release. **Fallback path** (documented but not taken): switch the embedded asset from VF to static cuts (Inter-Regular/SemiBold/Bold) and resolve weight via per-resource lookup — a partial reversal of divergence #2 / ADR 0004 only if the SkiaSharp 4 preview line is abandoned upstream.
 
 ## Hard rules (don't recompromise)
 
@@ -66,7 +68,7 @@ These overrides matter — re-read them before re-deriving:
 |---|---|
 | .NET SDK | 10.0.105 (LTS, EOL 2028-11-14) |
 | Flutter | 3.41.9 stable |
-| SkiaSharp | 3.119.2 |
+| SkiaSharp | 4.147.0-preview.1.1 (preview line — required for VF axis API; see divergence #16) |
 | QRCoder | 1.8.0 |
 | Telegram.Bot | 22.9.6.2 |
 | xUnit | 3.2.2 (v3) |
@@ -141,7 +143,7 @@ Refactor at **cluster boundary**, not per-task. Targeted test runs (`--filter`),
 
 ## Build sanity
 
-Last verified: 2026-05-07 (Phase 3 close).
+Last verified: 2026-05-08 (Phase 3b open — P3b.0 scaffold + P3b.0a FontProvider wght axis on SkiaSharp 4 preview).
 
 ```bash
 dotnet build receipt-toolkit.sln

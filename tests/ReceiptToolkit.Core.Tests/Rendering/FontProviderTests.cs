@@ -42,4 +42,34 @@ public sealed class FontProviderTests
 
         Assert.True(ReferenceEquals(first, second));
     }
+
+    // T_FP.W1 — Bold (700) request produces a typeface whose FontWeight property reports
+    //            the requested weight, proving SkiaSharp 4's wght-axis Clone selected the
+    //            VF instance (not silently falling through to the VF default = 400).
+    //            Embedded-font identity is also asserted via Contains("Inter") so a system
+    //            fallback can't satisfy the test (mirrors T3.5's intent).
+    [Fact]
+    public void FontProvider_Bold_SelectsWeightAxis()
+    {
+        using var provider = new FontProvider();
+
+        SKTypeface tf = provider.GetTypeface("Inter", SKFontStyleWeight.Bold);
+
+        Assert.NotNull(tf);
+        Assert.Contains("Inter", tf.FamilyName, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal((int)SKFontStyleWeight.Bold, tf.FontWeight);
+    }
+
+    // T_FP.W2 — Same as W1 for SemiBold (600).
+    [Fact]
+    public void FontProvider_SemiBold_SelectsWeightAxis()
+    {
+        using var provider = new FontProvider();
+
+        SKTypeface tf = provider.GetTypeface("Inter", SKFontStyleWeight.SemiBold);
+
+        Assert.NotNull(tf);
+        Assert.Contains("Inter", tf.FamilyName, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal((int)SKFontStyleWeight.SemiBold, tf.FontWeight);
+    }
 }
