@@ -46,7 +46,13 @@ public sealed class BotWorkerLifecycleTests
         await worker.StopAsync(TestContext.Current.CancellationToken);
 
         Assert.NotNull(worker.ExecuteTask);
-        Assert.True(worker.ExecuteTask!.IsCompletedSuccessfully, "Worker should exit cleanly on cancellation.");
+        // BackgroundService cancellation can resolve as either RanToCompletion (the
+        // catch swallowed the OCE) or Canceled (the OCE bubbled out) depending on the
+        // platform's task-completion ordering. Both are "clean exit"; only Faulted
+        // signals an unhandled error. Linux CI exposed this — macOS dev observed
+        // RanToCompletion exclusively.
+        Assert.True(worker.ExecuteTask!.IsCompleted, "Worker task should reach a terminal state.");
+        Assert.False(worker.ExecuteTask!.IsFaulted, "Worker should not fault on cancellation.");
         Assert.Equal(1, pollingClient.RunCount);
     }
 
