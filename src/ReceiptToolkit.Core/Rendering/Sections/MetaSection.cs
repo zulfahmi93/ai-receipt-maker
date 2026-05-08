@@ -38,6 +38,8 @@ public sealed class MetaSection : IReceiptSection
     private const string LabelReceipt = "Receipt #";
     private const string LabelDate = "Date";
     private const string LabelTime = "Time";
+    private const string LabelDateAndTime = "Date & Time";
+    private const string DateTimeSeparator = " · ";
     private const string LabelBranch = "Branch";
     private const string LabelTerminal = "Terminal";
     private const string LabelOrder = "Order";
@@ -98,24 +100,39 @@ public sealed class MetaSection : IReceiptSection
             rows.Add((LabelReceipt, r.ReceiptNumber));
         }
 
+        string? dateValue = null;
         if (!string.IsNullOrWhiteSpace(r.DateTime) && options is not null
             && !string.IsNullOrWhiteSpace(options.DateFormat))
         {
             string formatted = DateTimeFormatter.FormatDate(r.DateTime, options);
             if (!string.IsNullOrWhiteSpace(formatted))
             {
-                rows.Add((LabelDate, formatted));
+                dateValue = formatted;
             }
         }
 
+        string? timeValue = null;
         if (!string.IsNullOrWhiteSpace(r.DateTime) && options is not null
             && !string.IsNullOrWhiteSpace(options.TimeFormat))
         {
             string formatted = DateTimeFormatter.FormatTime(r.DateTime, options);
             if (!string.IsNullOrWhiteSpace(formatted))
             {
-                rows.Add((LabelTime, formatted));
+                timeValue = formatted;
             }
+        }
+
+        if (dateValue is not null && timeValue is not null)
+        {
+            rows.Add((LabelDateAndTime, dateValue + DateTimeSeparator + timeValue));
+        }
+        else if (dateValue is not null)
+        {
+            rows.Add((LabelDate, dateValue));
+        }
+        else if (timeValue is not null)
+        {
+            rows.Add((LabelTime, timeValue));
         }
 
         if (!string.IsNullOrWhiteSpace(r.BranchName))

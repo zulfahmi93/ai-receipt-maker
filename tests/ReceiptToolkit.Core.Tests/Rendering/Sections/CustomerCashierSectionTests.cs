@@ -10,6 +10,7 @@ using ReceiptToolkit.Contracts;
 using ReceiptToolkit.Core.Rendering;
 using ReceiptToolkit.Core.Rendering.Assets;
 using ReceiptToolkit.Core.Rendering.Sections;
+using SkiaSharp;
 
 namespace ReceiptToolkit.Core.Tests.Rendering.Sections;
 
@@ -68,5 +69,45 @@ public sealed class CustomerCashierSectionTests
         Assert.True(
             heightFull > heightAllNull,
             $"Expected Measure(full) > Measure(all-null); got {heightFull} vs {heightAllNull} — null fields must not leave a gap row");
+    }
+
+    // T3b.6a — Visual review V9.3 blocker B1: the two columns must not abut at the
+    //           midpoint — the renderer must reserve a clear horizontal gutter between
+    //           them so a long left-column value cannot collide with the right column's
+    //           label. Asserted in pixel-mode: a vertical strip centered on the section
+    //           midpoint contains only the white paper background, with no glyph pixels.
+    //           PdfPig text extraction is unsuitable here because it strips horizontal
+    //           whitespace within a row and concatenates adjacent text draws regardless
+    //           of the on-canvas gap.
+    [Fact]
+    public void CustomerCashierSection_LeavesGutter_BetweenColumns()
+    {
+        ReceiptData data = SectionTestBase.LoadSampleData();
+        using var fonts = new FontProvider();
+        var section = new CustomerCashierSection();
+        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+
+        const int Width = 360;
+        float measured = section.Measure(Width, data, ctx);
+        int height = Math.Max(1, (int)Math.Ceiling(measured));
+
+        using var bmp = new SKBitmap(Width, height);
+        using (var canvas = new SKCanvas(bmp))
+        {
+            canvas.Clear(SKColors.White);
+            section.Draw(canvas, new SKPoint(0f, 0f), Width, data, ctx);
+        }
+
+        int midX = Width / 2;
+        for (int x = midX - 2; x <= midX + 2; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                SKColor px = bmp.GetPixel(x, y);
+                Assert.True(
+                    px == SKColors.White,
+                    $"Expected gutter at column {x}, row {y} to be paper-coloured (White); got {px}");
+            }
+        }
     }
 }

@@ -135,6 +135,63 @@ public sealed class FooterSectionTests
             section.Measure(Width, twoLinesWithBlanks, ctx));
     }
 
+    // T3b.22a — Visual review V9.3 blocker B2: footer body lines that exceed the available
+    //            content width must wrap rather than overflow. Currently a single long line
+    //            (e.g. the legal note) renders past the canvas right edge. The fix routes
+    //            every body line through TextMeasurer.WrapLines, summing wrapped line counts
+    //            in Measure and drawing the wrapped lines in order in Draw. The geometric
+    //            assertion: a long legal note at the same width must produce a strictly
+    //            larger Measure than a short one, and the long line's text must be present
+    //            in the rendered PDF (whitespace-normalized to tolerate cross-line breaks).
+    [Fact]
+    public void FooterSection_WrapsLongBodyLines_AtAvailableWidth()
+    {
+        ReceiptData baseData = SectionTestBase.LoadSampleData();
+
+        const string LongLine = "This is a deliberately long legal note used to verify that footer body text wraps at the configured content width when the line cannot fit on a single row.";
+        const string ShortLine = "Short.";
+
+        ReceiptData longData = baseData with
+        {
+            Footer = (baseData.Footer ?? new FooterInfo()) with
+            {
+                ThankYouMessage = null,
+                FooterNote = null,
+                ReturnPolicy = null,
+                LegalNote = LongLine,
+                CustomFooterLines = [],
+            },
+            Options = (baseData.Options ?? new ReceiptOptions()) with { ShowFooterContact = false },
+        };
+
+        ReceiptData shortData = longData with
+        {
+            Footer = (longData.Footer ?? new FooterInfo()) with { LegalNote = ShortLine },
+        };
+
+        var section = new FooterSection();
+        using var fonts = new FontProvider();
+        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+
+        const float NarrowWidth = 200f;
+        float longHeight = section.Measure(NarrowWidth, longData, ctx);
+        float shortHeight = section.Measure(NarrowWidth, shortData, ctx);
+
+        Assert.True(
+            longHeight > shortHeight,
+            $"Expected wrap to make Measure(long) > Measure(short); got {longHeight} vs {shortHeight}");
+
+        // PdfPig drops whitespace at line-wrap boundaries, so a verbatim substring
+        // assertion on the whole long line is unsafe. Instead assert every word from
+        // the source line is present in the extracted text — wrapping must preserve
+        // every word, even if PdfPig joins them across lines.
+        string text = SectionTestBase.RenderSectionToPdfText(section, longData, fonts, width: NarrowWidth);
+        foreach (string word in LongLine.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            Assert.Contains(word, text, StringComparison.Ordinal);
+        }
+    }
+
     // T3b.22 — FooterSection collapses the contact block when ShowFooterContact is false.
     //           The sample has ShowFooterContact=true; mutating it to false via the nullable-
     //           parent guard must produce a strictly smaller Measure height, proving no height

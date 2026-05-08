@@ -78,4 +78,59 @@ public sealed class MetaSectionTests
             heightReduced < heightFull,
             $"Expected Measure(reduced) < Measure(full); got {heightReduced} vs {heightFull}");
     }
+
+    // T3b.5a — Visual review V9.3 blocker B3: when both DateFormat and TimeFormat are
+    //           configured and the receipt timestamp is parseable, MetaSection must emit
+    //           a single combined "Date & Time" row rather than two separate Date and
+    //           Time rows. The mockup labels this row "DATE & TIME" and joins the two
+    //           values with a middle dot. The combined row reduces vertical noise and
+    //           matches the design's information density.
+    [Fact]
+    public void MetaSection_EmitsCombinedDateAndTimeRow_WhenBothFormatsPresent()
+    {
+        ReceiptData data = SectionTestBase.LoadSampleData();
+        using var fonts = new FontProvider();
+        var section = new MetaSection();
+
+        string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
+        string formattedDate = DateTimeFormatter.FormatDate(data.Receipt.DateTime!, data.Options!);
+        string formattedTime = DateTimeFormatter.FormatTime(data.Receipt.DateTime!, data.Options!);
+
+        Assert.Contains("Date & Time", text, StringComparison.Ordinal);
+        Assert.Contains($"{formattedDate} · {formattedTime}", text, StringComparison.Ordinal);
+
+        const float Width = 360f;
+        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+        float combinedHeight = section.Measure(Width, data, ctx);
+
+        ReceiptData dateOnly = data with
+        {
+            Options = (data.Options ?? new ReceiptOptions()) with { TimeFormat = null },
+        };
+        float dateOnlyHeight = section.Measure(Width, dateOnly, ctx);
+
+        Assert.Equal(combinedHeight, dateOnlyHeight);
+    }
+
+    // T3b.5b — When only DateFormat is present (TimeFormat null/blank), MetaSection emits
+    //           a single Date row labelled "Date" — the combined "Date & Time" form only
+    //           applies when both pieces are rendered.
+    [Fact]
+    public void MetaSection_EmitsSeparateDateRow_WhenOnlyDateFormatPresent()
+    {
+        ReceiptData baseData = SectionTestBase.LoadSampleData();
+        ReceiptData data = baseData with
+        {
+            Options = (baseData.Options ?? new ReceiptOptions()) with { TimeFormat = null },
+        };
+
+        using var fonts = new FontProvider();
+        var section = new MetaSection();
+
+        string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
+
+        Assert.DoesNotContain("Date & Time", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Time", text, StringComparison.Ordinal);
+        Assert.Contains("Date", text, StringComparison.Ordinal);
+    }
 }

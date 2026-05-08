@@ -18,10 +18,10 @@ namespace ReceiptToolkit.Core.Rendering.Sections;
 ///     <see cref="Draw"/> performs no canvas operations.
 ///   </para>
 ///   <para>
-///     The left column occupies <see cref="LeftColumnFraction"/> of the available width;
-///     the right column uses the remainder. Within each column, label text is muted and
-///     value text uses the primary text colour, mirroring the MetaSection two-column
-///     pattern.
+///     The two columns split the available width equally minus a fixed
+///     <see cref="ColumnGutter"/> separating them. Within each column, label text is
+///     muted and value text uses the primary text colour, mirroring the MetaSection
+///     two-column pattern.
 ///   </para>
 ///   <para>
 ///     Layout numerics (font sizes, row height, gap) are local constants in Phase 3b.
@@ -39,7 +39,7 @@ public sealed class CustomerCashierSection : IReceiptSection
     private const float RowGap = 4f;
     private const float LabelFontSize = 11f;
     private const float ValueFontSize = 11f;
-    private const float LeftColumnFraction = 0.5f;
+    private const float ColumnGutter = 16f;
     private const float LabelColumnFraction = 0.35f;
     private const string FontFamily = "Inter";
 
@@ -88,9 +88,8 @@ public sealed class CustomerCashierSection : IReceiptSection
         SKColor mutedColor = ThemeColors.ResolveOrDefault(data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor);
         SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
 
-        float leftColumnWidth = width * LeftColumnFraction;
-        float rightColumnLeft = origin.X + leftColumnWidth;
-        float rightColumnWidth = width - leftColumnWidth;
+        float columnWidth = (width - ColumnGutter) / 2f;
+        float rightColumnLeft = origin.X + columnWidth + ColumnGutter;
 
         for (int i = 0; i < totalRows; i++)
         {
@@ -99,13 +98,13 @@ public sealed class CustomerCashierSection : IReceiptSection
             if (i < leftRows.Count)
             {
                 (string label, string value) = leftRows[i];
-                DrawRow(canvas, origin.X, rowY, leftColumnWidth, label, value, face, mutedColor, textColor);
+                DrawRow(canvas, origin.X, rowY, columnWidth, label, value, face, mutedColor, textColor);
             }
 
             if (i < rightRows.Count)
             {
                 (string label, string value) = rightRows[i];
-                DrawRow(canvas, rightColumnLeft, rowY, rightColumnWidth, label, value, face, mutedColor, textColor);
+                DrawRow(canvas, rightColumnLeft, rowY, columnWidth, label, value, face, mutedColor, textColor);
             }
         }
     }

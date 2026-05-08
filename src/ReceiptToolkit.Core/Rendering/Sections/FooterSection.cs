@@ -1,4 +1,5 @@
 using ReceiptToolkit.Contracts;
+using ReceiptToolkit.Core.Rendering.Layout;
 using SkiaSharp;
 
 namespace ReceiptToolkit.Core.Rendering.Sections;
@@ -61,35 +62,22 @@ public sealed class FooterSection : IReceiptSection
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(ctx);
 
-        List<string> bodyLines = MaterializeBodyLines(data);
-        List<string> contactLines = data.Options?.ShowFooterContact == true
-            ? MaterializeContactLines(data.Business)
-            : new List<string>();
+        int bodyLineCount = CountWrappedLines(MaterializeBodyEntries(data), width, ctx);
+        int contactLineCount = data.Options?.ShowFooterContact == true
+            ? CountWrappedLines(MaterializeContactEntries(data.Business), width, ctx)
+            : 0;
 
         float height = 0f;
 
-        for (int i = 0; i < bodyLines.Count; i++)
+        if (bodyLineCount > 0)
         {
-            if (i > 0)
-            {
-                height += LineGap;
-            }
-
-            height += LineHeight;
+            height += (bodyLineCount * LineHeight) + ((bodyLineCount - 1) * LineGap);
         }
 
-        if (contactLines.Count > 0)
+        if (contactLineCount > 0)
         {
             height += ContactBlockTopGap;
-            for (int i = 0; i < contactLines.Count; i++)
-            {
-                if (i > 0)
-                {
-                    height += LineGap;
-                }
-
-                height += LineHeight;
-            }
+            height += (contactLineCount * LineHeight) + ((contactLineCount - 1) * LineGap);
         }
 
         return height;
@@ -105,170 +93,145 @@ public sealed class FooterSection : IReceiptSection
         SKColor textColor = ThemeColors.ResolveOrDefault(data.Theme?.TextColor, ThemeColors.DefaultTextColor);
         SKColor mutedColor = ThemeColors.ResolveOrDefault(data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor);
 
-        SKTypeface semiBoldFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.SemiBold);
-        SKTypeface normalFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
-
         float y = origin.Y;
-        bool firstLine = true;
+        bool firstBodyLine = true;
 
-        // ThankYouMessage — SemiBold, slightly larger font.
-        string? thankYou = data.Footer?.ThankYouMessage;
-        if (!string.IsNullOrWhiteSpace(thankYou))
+        foreach (LineSpec entry in MaterializeBodyEntries(data))
         {
-            if (!firstLine)
+            SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, entry.Weight);
+            IReadOnlyList<string> wrapped = TextMeasurer.WrapLines(entry.Text, width, face, entry.FontSize);
+            foreach (string line in wrapped)
             {
-                y += LineGap;
-            }
+                if (!firstBodyLine)
+                {
+                    y += LineGap;
+                }
 
-            DrawLine(canvas, origin.X, y, thankYou, semiBoldFace, ThankYouFontSize, textColor);
-            y += LineHeight;
-            firstLine = false;
+                DrawLine(canvas, origin.X, y, line, face, entry.FontSize, textColor);
+                y += LineHeight;
+                firstBodyLine = false;
+            }
         }
 
-        // Remaining body lines — Normal weight, BodyFontSize.
-        FooterInfo footer = data.Footer ?? new FooterInfo();
-
-        List<string> remainingBodyLines = MaterializeRemainingBodyLines(footer);
-        foreach (string line in remainingBodyLines)
-        {
-            if (!firstLine)
-            {
-                y += LineGap;
-            }
-
-            DrawLine(canvas, origin.X, y, line, normalFace, BodyFontSize, textColor);
-            y += LineHeight;
-            firstLine = false;
-        }
-
-        // Contact sub-block — smaller muted font with a top gap.
         if (data.Options?.ShowFooterContact == true)
         {
-            List<string> contactLines = MaterializeContactLines(data.Business);
-            if (contactLines.Count > 0)
+            List<LineSpec> contactEntries = MaterializeContactEntries(data.Business);
+            if (contactEntries.Count > 0)
             {
                 y += ContactBlockTopGap;
-                bool firstContact = true;
+                bool firstContactLine = true;
+                SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
 
-                foreach (string line in contactLines)
+                foreach (LineSpec entry in contactEntries)
                 {
-                    if (!firstContact)
+                    IReadOnlyList<string> wrapped = TextMeasurer.WrapLines(entry.Text, width, face, entry.FontSize);
+                    foreach (string line in wrapped)
                     {
-                        y += LineGap;
-                    }
+                        if (!firstContactLine)
+                        {
+                            y += LineGap;
+                        }
 
-                    DrawLine(canvas, origin.X, y, line, normalFace, ContactFontSize, mutedColor);
-                    y += LineHeight;
-                    firstContact = false;
+                        DrawLine(canvas, origin.X, y, line, face, entry.FontSize, mutedColor);
+                        y += LineHeight;
+                        firstContactLine = false;
+                    }
                 }
             }
         }
     }
 
-    // Builds the ordered list of all body lines including ThankYouMessage (for Measure).
-    // Return type is List<string> to satisfy CA1859 — do not widen to IReadOnlyList<string>.
-    private static List<string> MaterializeBodyLines(ReceiptData data)
+    // Sums wrapped line counts for every entry at the given width, using each entry's
+    // own typeface weight + font size. Return type is List<...> upstream to satisfy
+    // CA1859 (private/internal helpers must not widen to IReadOnlyList<T>).
+    private static int CountWrappedLines(List<LineSpec> entries, float width, RenderContext ctx)
+    {
+        int count = 0;
+        foreach (LineSpec entry in entries)
+        {
+            SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, entry.Weight);
+            IReadOnlyList<string> wrapped = TextMeasurer.WrapLines(entry.Text, width, face, entry.FontSize);
+            count += wrapped.Count;
+        }
+
+        return count;
+    }
+
+    // Builds the ordered list of body entries (text + weight + font size) in render order:
+    // ThankYouMessage (SemiBold, ThankYouFontSize), FooterNote, ReturnPolicy, LegalNote,
+    // and each non-blank custom line (Normal, BodyFontSize).
+    private static List<LineSpec> MaterializeBodyEntries(ReceiptData data)
     {
         FooterInfo footer = data.Footer ?? new FooterInfo();
-        var lines = new List<string>(capacity: 8);
+        var entries = new List<LineSpec>(capacity: 8);
 
         if (!string.IsNullOrWhiteSpace(footer.ThankYouMessage))
         {
-            lines.Add(footer.ThankYouMessage!);
+            entries.Add(new LineSpec(footer.ThankYouMessage!, SKFontStyleWeight.SemiBold, ThankYouFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(footer.FooterNote))
         {
-            lines.Add(footer.FooterNote!);
+            entries.Add(new LineSpec(footer.FooterNote!, SKFontStyleWeight.Normal, BodyFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(footer.ReturnPolicy))
         {
-            lines.Add(footer.ReturnPolicy!);
+            entries.Add(new LineSpec(footer.ReturnPolicy!, SKFontStyleWeight.Normal, BodyFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(footer.LegalNote))
         {
-            lines.Add(footer.LegalNote!);
+            entries.Add(new LineSpec(footer.LegalNote!, SKFontStyleWeight.Normal, BodyFontSize));
         }
 
         foreach (string line in footer.CustomFooterLines)
         {
             if (!string.IsNullOrWhiteSpace(line))
             {
-                lines.Add(line);
+                entries.Add(new LineSpec(line, SKFontStyleWeight.Normal, BodyFontSize));
             }
         }
 
-        return lines;
+        return entries;
     }
 
-    // Builds the body lines that follow ThankYouMessage (FooterNote, ReturnPolicy,
-    // LegalNote, CustomFooterLines) for use in the Draw pass only.
-    // Return type is List<string> to satisfy CA1859 — do not widen to IReadOnlyList<string>.
-    private static List<string> MaterializeRemainingBodyLines(FooterInfo footer)
+    // Builds the ordered list of contact entries — all Normal weight, ContactFontSize.
+    // Each non-blank business field becomes one entry in display order: address, email,
+    // phone, website, social handle.
+    private static List<LineSpec> MaterializeContactEntries(BusinessInfo business)
     {
-        var lines = new List<string>(capacity: 7);
-
-        if (!string.IsNullOrWhiteSpace(footer.FooterNote))
-        {
-            lines.Add(footer.FooterNote!);
-        }
-
-        if (!string.IsNullOrWhiteSpace(footer.ReturnPolicy))
-        {
-            lines.Add(footer.ReturnPolicy!);
-        }
-
-        if (!string.IsNullOrWhiteSpace(footer.LegalNote))
-        {
-            lines.Add(footer.LegalNote!);
-        }
-
-        foreach (string line in footer.CustomFooterLines)
-        {
-            if (!string.IsNullOrWhiteSpace(line))
-            {
-                lines.Add(line);
-            }
-        }
-
-        return lines;
-    }
-
-    // Builds the ordered list of contact lines from the business object.
-    // Return type is List<string> to satisfy CA1859 — do not widen to IReadOnlyList<string>.
-    private static List<string> MaterializeContactLines(BusinessInfo business)
-    {
-        var lines = new List<string>(capacity: 5);
+        var entries = new List<LineSpec>(capacity: 5);
 
         if (!string.IsNullOrWhiteSpace(business.BusinessAddress))
         {
-            lines.Add(business.BusinessAddress!);
+            entries.Add(new LineSpec(business.BusinessAddress!, SKFontStyleWeight.Normal, ContactFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(business.BusinessEmail))
         {
-            lines.Add(business.BusinessEmail!);
+            entries.Add(new LineSpec(business.BusinessEmail!, SKFontStyleWeight.Normal, ContactFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(business.BusinessPhone))
         {
-            lines.Add(business.BusinessPhone!);
+            entries.Add(new LineSpec(business.BusinessPhone!, SKFontStyleWeight.Normal, ContactFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(business.BusinessWebsite))
         {
-            lines.Add(business.BusinessWebsite!);
+            entries.Add(new LineSpec(business.BusinessWebsite!, SKFontStyleWeight.Normal, ContactFontSize));
         }
 
         if (!string.IsNullOrWhiteSpace(business.SocialHandle))
         {
-            lines.Add(business.SocialHandle!);
+            entries.Add(new LineSpec(business.SocialHandle!, SKFontStyleWeight.Normal, ContactFontSize));
         }
 
-        return lines;
+        return entries;
     }
+
+    private readonly record struct LineSpec(string Text, SKFontStyleWeight Weight, float FontSize);
 
     private static void DrawLine(
         SKCanvas canvas,
