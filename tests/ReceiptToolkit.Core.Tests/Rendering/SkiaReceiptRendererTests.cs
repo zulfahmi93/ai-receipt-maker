@@ -174,4 +174,200 @@ public sealed class SkiaReceiptRendererTests
         Assert.Equal(expected.Green, rightEdge.Green);
         Assert.Equal(expected.Blue, rightEdge.Blue);
     }
+
+    // T3c.3 — theme.highlightColor flows through SkiaReceiptRenderer.Render to the
+    // TOTAL bar fill in the composed bitmap. Codebase truth uses HighlightColor
+    // (plan T3c.3 wording said accentColor — divergence #20). AccentColor is left
+    // at the sample default so QrSection is unaffected. BorderRadius/ShowShadow
+    // are forced off so the bar mid-pixel sample lands cleanly inside the fill.
+    [Fact]
+    public void T3c_3_HighlightColor_ChangesTotalBarPixel()
+    {
+        ReceiptData baseData = SectionTestBase.LoadSampleData();
+        ReceiptData data = baseData with
+        {
+            Theme = (baseData.Theme ?? new ReceiptTheme()) with { HighlightColor = "#FF0000" },
+            Layout = (baseData.Layout ?? new ReceiptLayout()) with
+            {
+                BorderRadius = 0,
+                ShowShadow = false,
+            },
+        };
+
+        ReceiptLayout layout = data.Layout!;
+        float padding = layout.Padding;
+        float sectionGap = layout.SectionGap;
+        float contentWidth = layout.ReceiptWidth - (2 * padding);
+
+        // Independent re-derivation of TOTAL bar position. Renderer composition:
+        //   y = padding; foreach visible section: if !first y += sectionGap; draw; y += h
+        // So Totals's draw-y = padding + Σ(visible pre-Totals heights) + sectionGap *
+        // (count of visible pre-Totals). Pre-Totals sections in mockup order are
+        // indices 0..4 in SkiaReceiptRenderer's array. Visibility is computed (>0f
+        // Measure) — we do not hardcode "all 5 visible".
+        IReceiptSection[] preTotals =
+        [
+            new HeaderSection(),
+            new TitleSection(),
+            new MetaSection(),
+            new CustomerCashierSection(),
+            new ItemTableSection(),
+        ];
+
+        using var fontsForExpected = new FontProvider();
+        using var ctxForExpected = new RenderContext(fontsForExpected, resolvedLogo: null);
+
+        float yTotalsTop = padding;
+        int visibleBefore = 0;
+        for (int i = 0; i < preTotals.Length; i++)
+        {
+            float h = preTotals[i].Measure(contentWidth, data, ctxForExpected);
+            if (h > 0f)
+            {
+                if (visibleBefore > 0)
+                {
+                    yTotalsTop += sectionGap;
+                }
+
+                yTotalsTop += h;
+                visibleBefore++;
+            }
+        }
+
+        // Add the gap before Totals if any pre-Totals section is visible.
+        if (visibleBefore > 0)
+        {
+            yTotalsTop += sectionGap;
+        }
+
+        float totalsHeight = new TotalsSection().Measure(contentWidth, data, ctxForExpected);
+        float yTotalsBottom = yTotalsTop + totalsHeight;
+
+        // TotalBarHeight mirrors TotalsSection.TotalBarHeight (private const). The bar
+        // is the LAST 22f within the totals section's measured height, so its mid-Y
+        // is yTotalsBottom - TotalBarHeight/2.
+        const float TotalBarHeight = 22f;
+        float barMidY = yTotalsBottom - (TotalBarHeight / 2f);
+        int sampleY = (int)Math.Round(barMidY);
+        int sampleX = (int)Math.Round(padding + (contentWidth / 2f));
+
+        var renderer = new SkiaReceiptRenderer();
+
+        using var fonts = new FontProvider();
+        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+
+        SKSize size = renderer.Measure(data, ctx);
+
+        int bitmapWidth = (int)size.Width;
+        int bitmapHeight = (int)Math.Ceiling(size.Height);
+        using var bitmap = new SKBitmap(bitmapWidth, bitmapHeight);
+        using var canvas = new SKCanvas(bitmap);
+
+        renderer.Render(canvas, data, ctx);
+
+        SKColor pixel = bitmap.GetPixel(sampleX, sampleY);
+
+        Assert.Equal((byte)255, pixel.Red);
+        Assert.Equal((byte)0, pixel.Green);
+        Assert.Equal((byte)0, pixel.Blue);
+        Assert.Equal((byte)255, pixel.Alpha);
+    }
+
+    // T3c.4 — Dual-purpose:
+    //   (a) Re-confirm paper paint on a different colour from T3c.2's magenta to
+    //       prove no stale-cache passthrough.
+    //   (b) Prove layering: TOTAL bar pixel must NOT equal the paper colour, i.e.
+    //       the highlight rect is drawn AFTER the paper rect, not erased by it.
+    // HighlightColor and AccentColor are left at sample defaults so the bar tint
+    // is the sample value (#E8F0EC), distinctly != blue paper.
+    [Fact]
+    public void T3c_4_PaperColor_BackgroundAndLayering()
+    {
+        ReceiptData baseData = SectionTestBase.LoadSampleData();
+        ReceiptData data = baseData with
+        {
+            Theme = (baseData.Theme ?? new ReceiptTheme()) with { PaperColor = "#0000FF" },
+            Layout = (baseData.Layout ?? new ReceiptLayout()) with
+            {
+                BorderRadius = 0,
+                ShowShadow = false,
+            },
+        };
+
+        ReceiptLayout layout = data.Layout!;
+        float padding = layout.Padding;
+        float sectionGap = layout.SectionGap;
+        float contentWidth = layout.ReceiptWidth - (2 * padding);
+
+        // Same re-derivation as T3c.3 — TOTAL bar mid-Y from independent geometry.
+        IReceiptSection[] preTotals =
+        [
+            new HeaderSection(),
+            new TitleSection(),
+            new MetaSection(),
+            new CustomerCashierSection(),
+            new ItemTableSection(),
+        ];
+
+        using var fontsForExpected = new FontProvider();
+        using var ctxForExpected = new RenderContext(fontsForExpected, resolvedLogo: null);
+
+        float yTotalsTop = padding;
+        int visibleBefore = 0;
+        for (int i = 0; i < preTotals.Length; i++)
+        {
+            float h = preTotals[i].Measure(contentWidth, data, ctxForExpected);
+            if (h > 0f)
+            {
+                if (visibleBefore > 0)
+                {
+                    yTotalsTop += sectionGap;
+                }
+
+                yTotalsTop += h;
+                visibleBefore++;
+            }
+        }
+
+        if (visibleBefore > 0)
+        {
+            yTotalsTop += sectionGap;
+        }
+
+        float totalsHeight = new TotalsSection().Measure(contentWidth, data, ctxForExpected);
+        float yTotalsBottom = yTotalsTop + totalsHeight;
+
+        const float TotalBarHeight = 22f;
+        float barMidY = yTotalsBottom - (TotalBarHeight / 2f);
+        int sampleY = (int)Math.Round(barMidY);
+        int sampleX = (int)Math.Round(padding + (contentWidth / 2f));
+
+        var renderer = new SkiaReceiptRenderer();
+
+        using var fonts = new FontProvider();
+        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+
+        SKSize size = renderer.Measure(data, ctx);
+
+        int bitmapWidth = (int)size.Width;
+        int bitmapHeight = (int)Math.Ceiling(size.Height);
+        using var bitmap = new SKBitmap(bitmapWidth, bitmapHeight);
+        using var canvas = new SKCanvas(bitmap);
+
+        renderer.Render(canvas, data, ctx);
+
+        // (a) Paper paint — corner must be the new blue paper colour.
+        SKColor topLeft = bitmap.GetPixel(0, 0);
+        Assert.Equal((byte)0, topLeft.Red);
+        Assert.Equal((byte)0, topLeft.Green);
+        Assert.Equal((byte)255, topLeft.Blue);
+        Assert.Equal((byte)255, topLeft.Alpha);
+
+        // (b) Layering — bar mid-pixel must not equal paper. The highlight fill is
+        // the sample default (#E8F0EC), whose Blue byte is 0xEC != 0xFF. Asserting
+        // pixel.Blue != 255 is the cleanest single-byte guard that this pixel was
+        // overwritten by the highlight rect after the paper rect was drawn.
+        SKColor barPixel = bitmap.GetPixel(sampleX, sampleY);
+        Assert.NotEqual((byte)255, barPixel.Blue);
+    }
 }
