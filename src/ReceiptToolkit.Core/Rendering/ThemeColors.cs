@@ -30,6 +30,14 @@ internal static class ThemeColors
     public static readonly SKColor DefaultMutedTextColor = SKColors.Gray;
 
     /// <summary>
+    ///   Neutral fallback for the TOTAL bar / highlight band when the theme value is missing
+    ///   or unparseable. <see cref="SKColors.LightGray"/> is chosen as a generic mid-tone that
+    ///   stays distinct from typical light paper backgrounds without locking the renderer to
+    ///   a specific theme accent.
+    /// </summary>
+    public static readonly SKColor DefaultHighlightColor = SKColors.LightGray;
+
+    /// <summary>
     ///   Returns the parsed <see cref="SKColor"/> from <paramref name="hex"/>, or
     ///   <paramref name="fallback"/> when <paramref name="hex"/> is null, whitespace, or
     ///   does not satisfy <see cref="SKColor.TryParse(string, out SKColor)"/>.
