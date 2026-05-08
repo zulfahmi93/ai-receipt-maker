@@ -23,6 +23,10 @@
              Link="Fixtures\sample_receipt_data.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\examples\sample_receipt_long_items.json"
+             Link="Fixtures\sample_receipt_long_items.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

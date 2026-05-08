@@ -52,6 +52,15 @@ public sealed class RenderContext : IDisposable
     public SKImage? ResolvedLogo { get; }
 
     /// <summary>
+    ///   When <see langword="true"/>, the composer paints a drop-shadow rectangle
+    ///   behind the paper and <see cref="ReceiptToolkit.Contracts.ReceiptLayout"/>'s
+    ///   measured canvas size grows by the shadow offset on the right and bottom edges.
+    ///   Set by raster exporters (PNG); vector exporters (PDF, SVG) leave the default
+    ///   <see langword="false"/> so the receipt body remains flush to the page edges.
+    /// </summary>
+    public bool EmitShadow { get; init; }
+
+    /// <summary>
     ///   Disposes <see cref="ResolvedLogo"/>.  <see cref="Fonts"/> is not disposed; the
     ///   caller owns its lifetime.
     /// </summary>

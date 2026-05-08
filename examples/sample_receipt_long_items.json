@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "business": {
+    "businessName": "Elevate Studio",
+    "businessTagline": "Every detail, exceptional.",
+    "businessLogoUrl": null,
+    "businessAddress": "123 Main Street, Kuala Lumpur",
+    "businessEmail": "hello@example.com",
+    "businessPhone": "+60 12-345 6789",
+    "businessWebsite": "example.com",
+    "socialHandle": "@elevatestudio",
+    "taxRegistrationNumber": "SST-123456789"
+  },
+  "receipt": {
+    "receiptTitle": "RECEIPT",
+    "receiptNumber": "INV-2025-09999",
+    "dateTime": "2025-05-18T10:42:00",
+    "branchName": "Main Branch",
+    "terminalId": "POS-03",
+    "orderNumber": "ORD-9999",
+    "referenceNumber": "REF-999900"
+  },
+  "customer": {
+    "customerName": "Walk-in Customer",
+    "customerId": null,
+    "customerPhone": null,
+    "customerEmail": null
+  },
+  "cashier": {
+    "cashierName": "Alex Johnson",
+    "cashierId": "EMP-001"
+  },
+  "items": [
+    { "sku": "SKU-001", "name": "Item 01", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-002", "name": "Item 02", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-003", "name": "Item 03", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-004", "name": "Item 04", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-005", "name": "Item 05", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-006", "name": "Item 06", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-007", "name": "Item 07", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-008", "name": "Item 08", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-009", "name": "Item 09", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-010", "name": "Item 10", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-011", "name": "Item 11", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-012", "name": "Item 12", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-013", "name": "Item 13", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-014", "name": "Item 14", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-015", "name": "Item 15", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-016", "name": "Item 16", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-017", "name": "Item 17", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-018", "name": "Item 18", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-019", "name": "Item 19", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-020", "name": "Item 20", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-021", "name": "Item 21", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-022", "name": "Item 22", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-023", "name": "Item 23", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-024", "name": "Item 24", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-025", "name": "Item 25", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-026", "name": "Item 26", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-027", "name": "Item 27", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-028", "name": "Item 28", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-029", "name": "Item 29", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-030", "name": "Item 30", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-031", "name": "Item 31", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-032", "name": "Item 32", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-033", "name": "Item 33", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-034", "name": "Item 34", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-035", "name": "Item 35", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-036", "name": "Item 36", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-037", "name": "Item 37", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-038", "name": "Item 38", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-039", "name": "Item 39", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-040", "name": "Item 40", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-041", "name": "Item 41", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-042", "name": "Item 42", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-043", "name": "Item 43", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-044", "name": "Item 44", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-045", "name": "Item 45", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-046", "name": "Item 46", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-047", "name": "Item 47", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-048", "name": "Item 48", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-049", "name": "Item 49", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" },
+    { "sku": "SKU-050", "name": "Item 50", "description": null, "quantity": 1, "unit": "pcs", "unitPrice": "5.00", "discount": "0", "taxRate": 0.0825, "total": "5.00" }
+  ],
+  "totals": {
+    "subtotal": "250.00",
+    "discountTotal": "0",
+    "serviceCharge": "0",
+    "taxLabel": "Tax (8.25%)",
+    "taxTotal": "20.63",
+    "roundingAdjustment": "0",
+    "grandTotal": "270.63"
+  },
+  "payments": [
+    {
+      "method": "Visa Credit Card",
+      "amount": "270.63",
+      "cardLastFour": "1234",
+      "authCode": "A7B3K9",
+      "transactionId": "TXN-984422"
+    }
+  ],
+  "qr": {
+    "qrCodeValue": "https://example.com/receipt/INV-2025-09999",
+    "qrCodeLabel": "Scan to view receipt",
+    "reviewUrl": "https://example.com/review",
+    "digitalReceiptUrl": "https://example.com/r/INV-2025-09999",
+    "supportUrl": "https://example.com/support"
+  },
+  "footer": {
+    "thankYouMessage": "Thank you!",
+    "footerNote": "We appreciate your support.",
+    "returnPolicy": "Returns accepted within 7 days with receipt.",
+    "legalNote": "This receipt is computer generated and does not require a signature.",
+    "customFooterLines": [
+      "Follow us @elevatestudio",
+      "Visit elevatestudio.com"
+    ]
+  },
+  "theme": {
+    "paperColor": "#FAF8F3",
+    "textColor": "#202020",
+    "mutedTextColor": "#6B6B6B",
+    "accentColor": "#3F6F63",
+    "dividerColor": "#B8C8C1",
+    "highlightColor": "#E8F0EC",
+    "backgroundColor": "#F5F2EC"
+  },
+  "layout": {
+    "receiptWidth": 360,
+    "padding": 28,
+    "sectionGap": 18,
+    "borderRadius": 16,
+    "showShadow": true,
+    "showPerforatedBottom": true,
+    "dividerStyle": "dashed"
+  },
+  "options": {
+    "currency": "MYR",
+    "currencySymbol": "RM",
+    "locale": "ms-MY",
+    "dateFormat": "dd MMM yyyy",
+    "timeFormat": "hh:mm tt",
+    "showItemDescription": false,
+    "showSku": false,
+    "showTaxBreakdown": true,
+    "showQrCode": true,
+    "showLogo": true,
+    "showFooterContact": true,
+    "autoCalculateTotals": false
+  }
+}

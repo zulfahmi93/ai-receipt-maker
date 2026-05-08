@@ -58,9 +58,24 @@ namespace ReceiptToolkit.Core.Rendering;
 ///     Style is read from <c>layout.DividerStyle</c> (<c>"solid"</c>/<c>"dashed"</c>/<c>"dotted"</c>);
 ///     null/empty/unknown values suppress the draw.
 ///   </para>
+///   <para>
+///     When <see cref="RenderContext.EmitShadow"/> is <see langword="true"/>, the
+///     measured canvas grows by <see cref="ShadowOffset"/> on the right and bottom
+///     edges and a soft semi-transparent black rectangle is painted at
+///     <c>(ShadowOffset, ShadowOffset)</c> before the paper fill. The shadow uses
+///     the same corner radius as the paper so rounded receipts cast rounded
+///     shadows. Vector exporters (PDF, SVG) leave the flag at its default
+///     <see langword="false"/> so the receipt body remains flush to the page edges;
+///     raster exporters (PNG) opt in.
+///   </para>
 /// </remarks>
 public sealed class SkiaReceiptRenderer
 {
+    /// <summary>Drop-shadow offset (px) applied to the right and bottom edges when
+    ///   <see cref="RenderContext.EmitShadow"/> is true. Soft semi-transparent black,
+    ///   no blur — keeps tests deterministic and pixel-sampling reliable.</summary>
+    private const float ShadowOffset = 8f;
+
     private static readonly float[] DashIntervals = [6f, 4f];
     private static readonly float[] DotIntervals = [2f, 3f];
 
@@ -98,9 +113,12 @@ public sealed class SkiaReceiptRenderer
         float contentWidth = layout.ReceiptWidth - (2 * layout.Padding);
 
         List<float> heights = MeasureSections(contentWidth, data, ctx);
-        float totalHeight = ComputeTotalHeight(heights, layout);
+        float paperHeight = ComputeTotalHeight(heights, layout);
 
-        return new SKSize(layout.ReceiptWidth, totalHeight);
+        float canvasWidth = layout.ReceiptWidth + (ctx.EmitShadow ? ShadowOffset : 0f);
+        float canvasHeight = paperHeight + (ctx.EmitShadow ? ShadowOffset : 0f);
+
+        return new SKSize(canvasWidth, canvasHeight);
     }
 
     /// <summary>
@@ -128,7 +146,12 @@ public sealed class SkiaReceiptRenderer
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         List<float> heights = MeasureSections(contentWidth, data, ctx);
-        float totalHeight = ComputeTotalHeight(heights, layout);
+        float paperHeight = ComputeTotalHeight(heights, layout);
+
+        if (ctx.EmitShadow)
+        {
+            DrawShadow(canvas, layout, paperHeight);
+        }
 
         SKColor paper = ThemeColors.ResolveOrDefault(
             data.Theme?.PaperColor,
@@ -141,7 +164,7 @@ public sealed class SkiaReceiptRenderer
             IsAntialias = false,
         })
         {
-            SKRect paperRect = new(0, 0, layout.ReceiptWidth, totalHeight);
+            SKRect paperRect = new(0, 0, layout.ReceiptWidth, paperHeight);
             if (layout.BorderRadius > 0)
             {
                 canvas.DrawRoundRect(paperRect, layout.BorderRadius, layout.BorderRadius, paperPaint);
@@ -206,6 +229,39 @@ public sealed class SkiaReceiptRenderer
         return sum
             + (layout.SectionGap * Math.Max(0, visibleCount - 1))
             + (2 * layout.Padding);
+    }
+
+    /// <summary>
+    ///   Paints a soft semi-transparent black drop-shadow rectangle behind the paper
+    ///   at <c>(<see cref="ShadowOffset"/>, <see cref="ShadowOffset"/>)</c>. Honours
+    ///   <see cref="ReceiptLayout.BorderRadius"/> so rounded receipts cast rounded
+    ///   shadows. No blur — antialiasing is enabled so the shadow edge is soft, but
+    ///   the rectangle itself is solid alpha=64. The shadow is intentionally simple
+    ///   so pixel-sampling tests can land deterministically inside the shadow region.
+    /// </summary>
+    private static void DrawShadow(SKCanvas canvas, ReceiptLayout layout, float paperHeight)
+    {
+        using var shadowPaint = new SKPaint
+        {
+            Color = SKColors.Black.WithAlpha(64),
+            Style = SKPaintStyle.Fill,
+            IsAntialias = true,
+        };
+
+        SKRect shadowRect = new(
+            ShadowOffset,
+            ShadowOffset,
+            layout.ReceiptWidth + ShadowOffset,
+            paperHeight + ShadowOffset);
+
+        if (layout.BorderRadius > 0)
+        {
+            canvas.DrawRoundRect(shadowRect, layout.BorderRadius, layout.BorderRadius, shadowPaint);
+        }
+        else
+        {
+            canvas.DrawRect(shadowRect, shadowPaint);
+        }
     }
 
     /// <summary>
