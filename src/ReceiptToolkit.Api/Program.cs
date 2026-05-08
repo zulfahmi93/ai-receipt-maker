@@ -16,9 +16,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // the hit happens once per process; thread-safe per its <remarks> XML doc.
 builder.Services.AddSingleton<FontProvider>();
 builder.Services.AddSingleton<IClock, SystemClock>();
-// Explicit factory: the (IEnumerable<IValidationRule>) ctor would be picked by DI and
-// resolve to an empty rule set since no IValidationRule services are registered.
-builder.Services.AddSingleton(_ => new ReceiptValidator());
+// Public surface is the parameterless ctor only; the (IEnumerable<IValidationRule>)
+// overload is internal so DI can no longer bind the empty-enumerable ctor (PROGRESS.md
+// divergence #25).
+builder.Services.AddSingleton<ReceiptValidator>();
 // ReceiptGenerator is a stateless wrapper over the four singletons above; safe as
 // singleton (the (IClock, FontProvider, ReceiptValidator) ctor sets ownsFonts=false so
 // disposing it is a no-op for fonts).

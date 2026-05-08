@@ -11,10 +11,10 @@ public sealed class ReceiptValidator
     /// <summary>Initializes a new <see cref="ReceiptValidator"/> with the built-in rule set.</summary>
     public ReceiptValidator() : this(DefaultRules()) { }
 
-    /// <summary>Initializes a new <see cref="ReceiptValidator"/> with a custom rule composition, suitable for dependency injection.</summary>
+    /// <summary>Initializes a new <see cref="ReceiptValidator"/> with a custom rule composition. Internal-only to prevent the multi-ctor DI trap (see PROGRESS.md divergence #25): a public <see cref="IEnumerable{T}"/> ctor invites <c>Microsoft.Extensions.DependencyInjection</c> to bind the empty enumerable, silently producing a zero-rule validator.</summary>
     /// <param name="rules">The rules to execute during validation. Must not be <see langword="null"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="rules"/> is <see langword="null"/>.</exception>
-    public ReceiptValidator(IEnumerable<IValidationRule> rules) =>
+    internal ReceiptValidator(IEnumerable<IValidationRule> rules) =>
         _rules = rules?.ToList() ?? throw new ArgumentNullException(nameof(rules));
 
     /// <summary>Validates the supplied <see cref="ReceiptData"/> against all registered rules and returns every violation found.</summary>
