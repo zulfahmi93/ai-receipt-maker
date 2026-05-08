@@ -21,4 +21,28 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <!--
+    Bundle the sample fixture next to the test assembly so CLI process tests can
+    feed it to the spawned binary via a known on-disk path (CliRunner spawns the
+    CLI from src/ReceiptToolkit.Cli/bin/... with the test bin as working directory).
+  -->
+  <ItemGroup>
+    <Content Include="..\..\examples\sample_receipt_data.json"
+             Link="sample_receipt_data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!--
+    Capture the CLI binary path into AssemblyMetadata so CliRunner can spawn the
+    built receipt-toolkit.dll via `dotnet exec` without hardcoding paths in test
+    source. Resolved at build time off this csproj's location + the standard CLI
+    output layout. Survives Debug/Release config because $(Configuration) is the
+    same for both projects under a shared build.
+  -->
+  <ItemGroup>
+    <AssemblyMetadata Include="ReceiptToolkit.Cli.AssemblyPath"
+                      Value="$(MSBuildThisFileDirectory)..\..\src\ReceiptToolkit.Cli\bin\$(Configuration)\net10.0\receipt-toolkit.dll" />
+  </ItemGroup>
+
 </Project>

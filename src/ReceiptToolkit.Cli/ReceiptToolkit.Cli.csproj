@@ -10,4 +10,15 @@
     <ProjectReference Include="..\ReceiptToolkit.Core\ReceiptToolkit.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\examples\sample_receipt_data.json"
+             Link="sample_receipt_data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
