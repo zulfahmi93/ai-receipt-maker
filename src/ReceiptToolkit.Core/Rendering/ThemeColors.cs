@@ -38,6 +38,21 @@ internal static class ThemeColors
     public static readonly SKColor DefaultHighlightColor = SKColors.LightGray;
 
     /// <summary>
+    ///   Neutral fallback for accent-colored elements (QR modules, headings) when the theme
+    ///   value is missing or unparseable. <see cref="SKColors.DarkSlateGray"/> provides a
+    ///   mid-tone that reads clearly against both light paper backgrounds and white bitmap
+    ///   surfaces without imposing a brand color.
+    /// </summary>
+    public static readonly SKColor DefaultAccentColor = SKColors.DarkSlateGray;
+
+    /// <summary>
+    ///   Neutral fallback for divider lines and perforation strokes when the theme value is
+    ///   missing or unparseable. <see cref="SKColors.LightGray"/> is a light neutral that
+    ///   renders a visible but non-intrusive separator on light paper backgrounds.
+    /// </summary>
+    public static readonly SKColor DefaultDividerColor = SKColors.LightGray;
+
+    /// <summary>
     ///   Returns the parsed <see cref="SKColor"/> from <paramref name="hex"/>, or
     ///   <paramref name="fallback"/> when <paramref name="hex"/> is null, whitespace, or
     ///   does not satisfy <see cref="SKColor.TryParse(string, out SKColor)"/>.
