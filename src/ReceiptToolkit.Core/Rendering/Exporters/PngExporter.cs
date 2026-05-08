@@ -61,18 +61,28 @@ public sealed class PngExporter
     public bool EmitShadow { get; }
 
     /// <summary>
-    ///   Renders <paramref name="data"/> to a PNG byte stream.
+    ///   Renders <paramref name="data"/> to a PNG byte stream with no logo image.
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <returns>The PNG bytes (starting with the <c>89 50 4E 47</c> magic).</returns>
-    public byte[] Export(ReceiptData data)
+    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null);
+
+    /// <summary>
+    ///   Renders <paramref name="data"/> to a PNG byte stream using the supplied
+    ///   pre-resolved logo image.
+    /// </summary>
+    /// <param name="data">The receipt model.</param>
+    /// <param name="resolvedLogo">
+    ///   Logo image already resolved from <c>business.businessLogoUrl</c>, or
+    ///   <see langword="null"/> for a logo-less render. The caller retains ownership
+    ///   of the handle; this method does not dispose it.
+    /// </param>
+    /// <returns>The PNG bytes (starting with the <c>89 50 4E 47</c> magic).</returns>
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        // TODO(T3e.x): resolve data.Business.businessLogoUrl into RenderContext via
-        // LogoResolver. Phase 3d emits logo-less receipts even when the JSON declares
-        // a logo URL — the ReceiptGenerator façade owns logo resolution.
-        using var ctx = new RenderContext(_fonts, resolvedLogo: null) { EmitShadow = EmitShadow };
+        using var ctx = new RenderContext(_fonts, resolvedLogo) { EmitShadow = EmitShadow };
         var renderer = new SkiaReceiptRenderer();
         SKSize canvasSize = renderer.Measure(data, ctx);
 

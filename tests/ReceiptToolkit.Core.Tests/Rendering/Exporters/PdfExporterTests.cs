@@ -8,10 +8,10 @@
 
 using System.Text;
 using ReceiptToolkit.Contracts;
-using ReceiptToolkit.Contracts.Time;
 using ReceiptToolkit.Core.Rendering.Assets;
 using ReceiptToolkit.Core.Rendering.Exporters;
 using ReceiptToolkit.Core.Tests.Rendering.Sections;
+using ReceiptToolkit.Core.Tests.Time;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 
@@ -131,10 +131,5 @@ public sealed class PdfExporterTests
 
         string json = File.ReadAllText(fixturePath);
         return ReceiptData.FromJson(json);
-    }
-
-    private sealed class FixedClock(DateTimeOffset now) : IClock
-    {
-        public DateTimeOffset UtcNow { get; } = now;
     }
 }

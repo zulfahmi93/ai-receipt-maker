@@ -17,16 +17,15 @@ namespace ReceiptToolkit.Core.Rendering;
 ///     individual sections never re-resolve a file path or data URI.
 ///   </para>
 ///   <para>
-///     <b>Lifetime:</b> <see cref="Dispose"/> disposes <see cref="ResolvedLogo"/> only.
-///     The supplied <see cref="FontProvider"/> is treated as caller-owned (typically
-///     scoped to a longer-lived <c>ReceiptGenerator</c> instance) and is not disposed
-///     here.
+///     <b>Lifetime:</b> the supplied <see cref="FontProvider"/> and
+///     <see cref="ResolvedLogo"/> are both treated as caller-owned. <see cref="Dispose"/>
+///     does not free either handle. The <c>ReceiptGenerator</c> façade owns the resolved
+///     logo across PDF + PNG + SVG exporter calls so a single resolution serves every
+///     output format without per-format re-allocation.
 ///   </para>
 /// </remarks>
 public sealed class RenderContext : IDisposable
 {
-    private bool _disposed;
-
     /// <summary>
     ///   Initialises a new <see cref="RenderContext"/>.
     /// </summary>
@@ -36,7 +35,7 @@ public sealed class RenderContext : IDisposable
     /// <param name="resolvedLogo">
     ///   The logo image already resolved from <c>business.businessLogoUrl</c>, or
     ///   <see langword="null"/> when no logo is configured or rendering is disabled.
-    ///   Owned by this context and disposed in <see cref="Dispose"/>.
+    ///   Caller-owned; not disposed by this context.
     /// </param>
     public RenderContext(FontProvider fonts, SKImage? resolvedLogo)
     {
@@ -61,17 +60,13 @@ public sealed class RenderContext : IDisposable
     public bool EmitShadow { get; init; }
 
     /// <summary>
-    ///   Disposes <see cref="ResolvedLogo"/>.  <see cref="Fonts"/> is not disposed; the
-    ///   caller owns its lifetime.
+    ///   No-op disposal: neither <see cref="Fonts"/> nor <see cref="ResolvedLogo"/> are
+    ///   owned by this context. <see cref="IDisposable"/> is retained so existing
+    ///   <c>using var ctx = new RenderContext(...)</c> call-sites compile unchanged.
     /// </summary>
     public void Dispose()
     {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        ResolvedLogo?.Dispose();
+        // Caller owns Fonts (long-lived FontProvider) and ResolvedLogo (generator-owned
+        // across PDF+PNG+SVG export calls); nothing for this context to release.
     }
 }

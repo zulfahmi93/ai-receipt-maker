@@ -36,18 +36,28 @@ public sealed class SvgExporter
     }
 
     /// <summary>
-    ///   Renders <paramref name="data"/> to an SVG byte stream.
+    ///   Renders <paramref name="data"/> to an SVG byte stream with no logo image.
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <returns>The SVG bytes (UTF-8 XML starting with <c>&lt;svg</c>).</returns>
-    public byte[] Export(ReceiptData data)
+    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null);
+
+    /// <summary>
+    ///   Renders <paramref name="data"/> to an SVG byte stream using the supplied
+    ///   pre-resolved logo image.
+    /// </summary>
+    /// <param name="data">The receipt model.</param>
+    /// <param name="resolvedLogo">
+    ///   Logo image already resolved from <c>business.businessLogoUrl</c>, or
+    ///   <see langword="null"/> for a logo-less render. The caller retains ownership
+    ///   of the handle; this method does not dispose it.
+    /// </param>
+    /// <returns>The SVG bytes (UTF-8 XML starting with <c>&lt;svg</c>).</returns>
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        // TODO(T3e.x): resolve data.Business.businessLogoUrl into RenderContext via
-        // LogoResolver. Phase 3d emits logo-less SVGs even when the JSON declares a
-        // logo URL — the ReceiptGenerator façade owns logo resolution.
-        using var ctx = new RenderContext(_fonts, resolvedLogo: null);
+        using var ctx = new RenderContext(_fonts, resolvedLogo);
         var renderer = new SkiaReceiptRenderer();
         SKSize canvasSize = renderer.Measure(data, ctx);
 

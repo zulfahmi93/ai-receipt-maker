@@ -1,0 +1,7 @@
+# Golden snapshot directory — populated on first Linux CI run.
+#
+# Phase 3e sub-cluster D (T3e.8/T3e.9) byte-compares ReceiptGenerator output to
+# the .golden.pdf / .golden.png files committed here. SkiaSharp rasterisation
+# differs across platforms, so goldens are gated to Linux CI per the CLAUDE.md
+# hard rule. Tests Skip on macOS / Windows; on Linux a missing golden fails the
+# test with a regen instruction.

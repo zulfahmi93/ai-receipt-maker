@@ -27,6 +27,10 @@
              Link="Fixtures\sample_receipt_long_items.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\examples\golden\*.golden.*"
+             Link="Fixtures\golden\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

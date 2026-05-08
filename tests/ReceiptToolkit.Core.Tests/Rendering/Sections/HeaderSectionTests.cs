@@ -107,15 +107,17 @@ public sealed class HeaderSectionTests
         float heightEnabled;
         float heightDisabled;
 
-        // Each Measure call gets its own SKImage handle and its own RenderContext —
-        // RenderContext.Dispose() owns and releases the image, so the test does NOT
-        // wrap the SKImage in an outer `using` (that would double-dispose).
-        using (var ctx = new RenderContext(fonts, SKImage.FromBitmap(bitmap)))
+        // RenderContext now treats ResolvedLogo as caller-owned (Phase 3e flip), so each
+        // SKImage handle gets its own outer `using`. Without it the handle would leak
+        // to the finalizer queue.
+        using (SKImage logoEnabled = SKImage.FromBitmap(bitmap))
+        using (var ctx = new RenderContext(fonts, logoEnabled))
         {
             heightEnabled = section.Measure(Width, enabled, ctx);
         }
 
-        using (var ctx = new RenderContext(fonts, SKImage.FromBitmap(bitmap)))
+        using (SKImage logoDisabled = SKImage.FromBitmap(bitmap))
+        using (var ctx = new RenderContext(fonts, logoDisabled))
         {
             heightDisabled = section.Measure(Width, disabled, ctx);
         }

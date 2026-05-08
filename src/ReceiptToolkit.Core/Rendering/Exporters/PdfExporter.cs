@@ -54,11 +54,24 @@ public sealed class PdfExporter
     public int PageHeight { get; }
 
     /// <summary>
-    ///   Renders <paramref name="data"/> to a PDF byte stream.
+    ///   Renders <paramref name="data"/> to a PDF byte stream with no logo image.
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <returns>The PDF bytes (starting with the <c>%PDF-</c> magic).</returns>
-    public byte[] Export(ReceiptData data)
+    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null);
+
+    /// <summary>
+    ///   Renders <paramref name="data"/> to a PDF byte stream using the supplied
+    ///   pre-resolved logo image.
+    /// </summary>
+    /// <param name="data">The receipt model.</param>
+    /// <param name="resolvedLogo">
+    ///   Logo image already resolved from <c>business.businessLogoUrl</c>, or
+    ///   <see langword="null"/> for a logo-less render. The caller retains ownership
+    ///   of the handle; this method does not dispose it.
+    /// </param>
+    /// <returns>The PDF bytes (starting with the <c>%PDF-</c> magic).</returns>
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
     {
         ArgumentNullException.ThrowIfNull(data);
 
@@ -66,10 +79,7 @@ public sealed class PdfExporter
         // even if the underlying clock advances between reads.
         DateTime now = _clock.UtcNow.UtcDateTime;
 
-        // TODO(T3e.x): resolve data.Business.businessLogoUrl into RenderContext via
-        // LogoResolver. Phase 3d emits logo-less receipts even when the JSON declares
-        // a logo URL — the ReceiptGenerator façade owns logo resolution.
-        using var ctx = new RenderContext(_fonts, resolvedLogo: null);
+        using var ctx = new RenderContext(_fonts, resolvedLogo);
         var renderer = new SkiaReceiptRenderer();
         SKSize size = renderer.Measure(data, ctx);
 
