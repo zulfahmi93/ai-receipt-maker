@@ -194,7 +194,10 @@ public sealed class FooterSection : IReceiptSection
 
         foreach (string line in footer.CustomFooterLines)
         {
-            lines.Add(line);
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                lines.Add(line);
+            }
         }
 
         return lines;
@@ -224,7 +227,10 @@ public sealed class FooterSection : IReceiptSection
 
         foreach (string line in footer.CustomFooterLines)
         {
-            lines.Add(line);
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                lines.Add(line);
+            }
         }
 
         return lines;

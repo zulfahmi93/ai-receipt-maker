@@ -101,6 +101,40 @@ public sealed class FooterSectionTests
         Assert.Contains("Visit elevatestudio.com", text, StringComparison.Ordinal);
     }
 
+    // T3b.21a — FooterSection skips blank/whitespace customFooterLines entries instead of
+    //            reserving height for them. Defensive parity with the four optional message
+    //            fields, which already short-circuit on `string.IsNullOrWhiteSpace`.
+    //            Geometric assertion: Measure(["A","","B"]) == Measure(["A","B"]).
+    [Fact]
+    public void FooterSection_SkipsBlankCustomFooterLines_InMeasure()
+    {
+        ReceiptData baseData = SectionTestBase.LoadSampleData();
+
+        ReceiptData twoLines = baseData with
+        {
+            Footer = (baseData.Footer ?? new FooterInfo()) with
+            {
+                CustomFooterLines = ["Follow us @elevatestudio", "Visit elevatestudio.com"],
+            },
+        };
+
+        ReceiptData twoLinesWithBlanks = baseData with
+        {
+            Footer = (baseData.Footer ?? new FooterInfo()) with
+            {
+                CustomFooterLines = ["Follow us @elevatestudio", "", "   ", "Visit elevatestudio.com"],
+            },
+        };
+
+        var section = new FooterSection();
+        using var fonts = new FontProvider();
+        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+
+        Assert.Equal(
+            section.Measure(Width, twoLines, ctx),
+            section.Measure(Width, twoLinesWithBlanks, ctx));
+    }
+
     // T3b.22 — FooterSection collapses the contact block when ShowFooterContact is false.
     //           The sample has ShowFooterContact=true; mutating it to false via the nullable-
     //           parent guard must produce a strictly smaller Measure height, proving no height
