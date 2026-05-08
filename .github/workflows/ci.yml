@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build + test (Linux x86_64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore receipt-toolkit.sln
+
+      - name: Build
+        # TreatWarningsAsErrors=true + AnalysisLevel=latest-recommended; analyzer
+        # warnings fail the build. See CLAUDE.md hard rule.
+        run: dotnet build receipt-toolkit.sln --configuration Release --no-restore
+
+      - name: Test
+        # Golden tests assert byte-equality on Linux runners (skip on macOS/Windows
+        # locally). PROGRESS.md divergence #23 — first golden bytes land via the
+        # regen-goldens workflow.
+        run: >
+          dotnet test receipt-toolkit.sln
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --logger "console;verbosity=normal"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          if-no-files-found: ignore
