@@ -8,14 +8,19 @@ public sealed class BotWorkerLifecycleTests
     /// <summary>
     ///   Polling client that blocks until the supplied <c>CancellationToken</c>
     ///   fires, then returns gracefully — mirrors the real long-polling shape.
+    ///   Exposes a <see cref="Started"/> signal so callers can deterministically
+    ///   wait for the polling loop to engage before triggering shutdown.
     /// </summary>
     private sealed class CancellingPollingClient : IPollingClient
     {
+        public TaskCompletionSource Started { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
         public int RunCount { get; private set; }
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             RunCount++;
+            Started.TrySetResult();
             try
             {
                 await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
@@ -42,6 +47,11 @@ public sealed class BotWorkerLifecycleTests
 
         await worker.StartAsync(TestContext.Current.CancellationToken);
         Assert.False(worker.ExecuteTask?.IsCompleted ?? true, "Worker should be running.");
+        // Wait deterministically for the fake's polling loop to engage before
+        // stopping. Without this, slow runners (Linux CI) can race past the
+        // RunCount increment and observe an unstarted polling client.
+        await pollingClient.Started.Task.WaitAsync(
+            TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         await worker.StopAsync(TestContext.Current.CancellationToken);
 
