@@ -53,6 +53,13 @@ internal static class ThemeColors
     public static readonly SKColor DefaultDividerColor = SKColors.LightGray;
 
     /// <summary>
+    ///   Neutral fallback for the paper background when the theme value is missing or
+    ///   unparseable. <see cref="SKColors.White"/> matches a plain thermal-receipt surface
+    ///   and keeps black/gray text legible without imposing a brand tint.
+    /// </summary>
+    public static readonly SKColor DefaultPaperColor = SKColors.White;
+
+    /// <summary>
     ///   Returns the parsed <see cref="SKColor"/> from <paramref name="hex"/>, or
     ///   <paramref name="fallback"/> when <paramref name="hex"/> is null, whitespace, or
     ///   does not satisfy <see cref="SKColor.TryParse(string, out SKColor)"/>.
