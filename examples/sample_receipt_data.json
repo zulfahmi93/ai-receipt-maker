@@ -145,7 +145,7 @@
     "currencySymbol": "RM",
     "locale": "ms-MY",
     "dateFormat": "dd MMM yyyy",
-    "timeFormat": "hh:mm a",
+    "timeFormat": "hh:mm tt",
     "showItemDescription": false,
     "showSku": false,
     "showTaxBreakdown": true,

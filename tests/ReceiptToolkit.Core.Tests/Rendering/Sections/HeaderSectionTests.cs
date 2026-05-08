@@ -107,17 +107,15 @@ public sealed class HeaderSectionTests
         float heightEnabled;
         float heightDisabled;
 
-        // Each Measure call needs its own RenderContext because RenderContext takes
-        // ownership of the SKImage and disposes it. We re-encode the bitmap into a
-        // fresh SKImage per ctx so neither dispose corrupts the other.
-        using (var imageEnabled = SKImage.FromBitmap(bitmap))
-        using (var ctx = new RenderContext(fonts, imageEnabled))
+        // Each Measure call gets its own SKImage handle and its own RenderContext —
+        // RenderContext.Dispose() owns and releases the image, so the test does NOT
+        // wrap the SKImage in an outer `using` (that would double-dispose).
+        using (var ctx = new RenderContext(fonts, SKImage.FromBitmap(bitmap)))
         {
             heightEnabled = section.Measure(Width, enabled, ctx);
         }
 
-        using (var imageDisabled = SKImage.FromBitmap(bitmap))
-        using (var ctx = new RenderContext(fonts, imageDisabled))
+        using (var ctx = new RenderContext(fonts, SKImage.FromBitmap(bitmap)))
         {
             heightDisabled = section.Measure(Width, disabled, ctx);
         }
