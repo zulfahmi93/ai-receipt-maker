@@ -25,10 +25,26 @@ namespace ReceiptToolkit.Core.Rendering;
 ///     <c>sectionGap</c>.
 ///   </para>
 ///   <para>
-///     The paper background is painted as an explicit <see cref="SKCanvas.DrawRect(SKRect, SKPaint)"/>
-///     covering <c>(0, 0, width, height)</c> before any section draws (Option B
-///     scope). Antialiasing is disabled for that fill so the rectangle aligns
-///     exactly to integer pixel boundaries — corner samples are reliable.
+///     The paper background is painted before any section draws (Option B scope) over the
+///     entire <c>(0, 0, width, height)</c> region. Geometry switches on
+///     <c>layout.BorderRadius</c>: positive values draw a rounded rectangle via
+///     <see cref="SKCanvas.DrawRoundRect(SKRect, float, float, SKPaint)"/> so pixels outside
+///     the corner curves remain at the bitmap's default state (transparent black, alpha=0);
+///     zero or negative values fall back to <see cref="SKCanvas.DrawRect(SKRect, SKPaint)"/>
+///     covering the full rectangle. Antialiasing is disabled for the paper fill so the
+///     rectangle aligns exactly to integer pixel boundaries — corner samples are reliable.
+///   </para>
+///   <para>
+///     Caller contract for the corner-clip behaviour: the destination canvas's backing
+///     surface (typically <see cref="SKBitmap"/>) MUST be in its default fully-transparent
+///     state (alpha=0 across all pixels) before <see cref="Render"/> runs. If the caller
+///     pre-clears or pre-fills the bitmap with an opaque colour, pixels outside the
+///     rounded corner curves will retain that pre-fill rather than reading alpha=0, and
+///     the implicit clipping contract no longer holds. Out-of-range
+///     <c>layout.BorderRadius</c> values are not validated by the renderer: very large
+///     radii (greater than half the smaller dimension) are clamped silently by Skia's
+///     rasteriser to produce a pill or ellipse-like shape rather than throwing. Callers
+///     that need a hard ceiling should enforce it at the validation layer.
 ///   </para>
 ///   <para>
 ///     Layout numerics (<c>ReceiptWidth</c>, <c>Padding</c>, <c>SectionGap</c>) and
@@ -36,9 +52,18 @@ namespace ReceiptToolkit.Core.Rendering;
 ///     in this composer. Theme strings are resolved via
 ///     <see cref="ThemeColors.ResolveOrDefault"/>.
 ///   </para>
+///   <para>
+///     Sections may opt into a leading divider via <see cref="IReceiptSection.RequiresLeadingDivider"/>;
+///     the composer paints the stroke at the gap midpoint when the next visible section requires one.
+///     Style is read from <c>layout.DividerStyle</c> (<c>"solid"</c>/<c>"dashed"</c>/<c>"dotted"</c>);
+///     null/empty/unknown values suppress the draw.
+///   </para>
 /// </remarks>
 public sealed class SkiaReceiptRenderer
 {
+    private static readonly float[] DashIntervals = [6f, 4f];
+    private static readonly float[] DotIntervals = [2f, 3f];
+
     private readonly IReceiptSection[] _sections =
     [
         new HeaderSection(),
@@ -116,7 +141,15 @@ public sealed class SkiaReceiptRenderer
             IsAntialias = false,
         })
         {
-            canvas.DrawRect(0, 0, layout.ReceiptWidth, totalHeight, paperPaint);
+            SKRect paperRect = new(0, 0, layout.ReceiptWidth, totalHeight);
+            if (layout.BorderRadius > 0)
+            {
+                canvas.DrawRoundRect(paperRect, layout.BorderRadius, layout.BorderRadius, paperPaint);
+            }
+            else
+            {
+                canvas.DrawRect(paperRect, paperPaint);
+            }
         }
 
         float y = padding;
@@ -131,7 +164,13 @@ public sealed class SkiaReceiptRenderer
 
             if (!first)
             {
+                float gapStartY = y;
                 y += sectionGap;
+                if (_sections[i].RequiresLeadingDivider)
+                {
+                    float dividerY = MathF.Round(gapStartY + (sectionGap / 2f));
+                    DrawLeadingDivider(canvas, dividerY, padding, layout.ReceiptWidth - padding, data);
+                }
             }
 
             _sections[i].Draw(canvas, new SKPoint(padding, y), contentWidth, data, ctx);
@@ -167,5 +206,61 @@ public sealed class SkiaReceiptRenderer
         return sum
             + (layout.SectionGap * Math.Max(0, visibleCount - 1))
             + (2 * layout.Padding);
+    }
+
+    /// <summary>
+    ///   Paints a single horizontal divider stroke at <paramref name="dividerY"/> spanning
+    ///   <paramref name="xStart"/> to <paramref name="xEnd"/>. The divider Y is the
+    ///   midpoint of the inter-section gap that precedes a section whose
+    ///   <see cref="IReceiptSection.RequiresLeadingDivider"/> is <see langword="true"/>.
+    ///   Stroke colour is resolved from <c>theme.dividerColor</c> with
+    ///   <see cref="ThemeColors.DefaultDividerColor"/> as fallback. Style branch on
+    ///   <c>layout.DividerStyle</c>: <c>"solid"</c> draws a hairline with no
+    ///   <see cref="SKPathEffect"/>; <c>"dashed"</c> applies a [6, 4] dash; <c>"dotted"</c>
+    ///   applies a [2, 3] dot. Any other value of <c>layout.DividerStyle</c> — including
+    ///   <see langword="null"/>, the empty string, whitespace, or an unrecognised token —
+    ///   causes an early return before any <see cref="SKPaint"/> is allocated, so no
+    ///   stroke is drawn at all. (Note: a <see langword="null"/> path effect on the
+    ///   <c>"solid"</c> branch is the correct value for a plain hairline; that null is
+    ///   distinct from the early-return null-style suppression.) StrokeWidth is 1px and
+    ///   antialiasing is disabled so exact-pixel sampling is reliable; callers must pass
+    ///   an integer-valued <paramref name="dividerY"/> (snap with <see cref="MathF.Round(float)"/>
+    ///   when computed from a half-integer gap midpoint) to avoid platform-dependent
+    ///   rasteriser snapping at half-pixel rows.
+    /// </summary>
+    private static void DrawLeadingDivider(
+        SKCanvas canvas,
+        float dividerY,
+        float xStart,
+        float xEnd,
+        ReceiptData data)
+    {
+        string? style = data.Layout?.DividerStyle;
+        if (style is not ("solid" or "dashed" or "dotted"))
+        {
+            return;
+        }
+
+        using SKPathEffect? effect = style switch
+        {
+            "dashed" => SKPathEffect.CreateDash(DashIntervals, 0f),
+            "dotted" => SKPathEffect.CreateDash(DotIntervals, 0f),
+            _ => null,
+        };
+
+        SKColor stroke = ThemeColors.ResolveOrDefault(
+            data.Theme?.DividerColor,
+            ThemeColors.DefaultDividerColor);
+
+        using var paint = new SKPaint
+        {
+            Color = stroke,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1f,
+            IsAntialias = false,
+            PathEffect = effect,
+        };
+
+        canvas.DrawLine(xStart, dividerY, xEnd, dividerY, paint);
     }
 }

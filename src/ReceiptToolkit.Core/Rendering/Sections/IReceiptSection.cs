@@ -66,4 +66,20 @@ public interface IReceiptSection
     ///   must perform no draw operations.
     /// </remarks>
     void Draw(SKCanvas canvas, SKPoint origin, float width, ReceiptData data, RenderContext ctx);
+
+    /// <summary>
+    ///   Indicates that the renderer should paint a divider stroke at the midpoint of the
+    ///   section gap immediately preceding this section. Only honoured when the section is
+    ///   visible (<see cref="Measure"/> &gt; 0) and is not the first visible section.
+    ///   Stroke colour comes from <c>theme.dividerColor</c>; stroke pattern comes from
+    ///   <c>layout.dividerStyle</c> (<c>"solid" | "dashed" | "dotted"</c>; null/empty/unknown
+    ///   suppresses the draw).
+    /// </summary>
+    /// <remarks>
+    ///   Defaults to <see langword="false"/> for every <see cref="IReceiptSection"/>; only
+    ///   sections that require visual separation from the preceding content should override
+    ///   to <see langword="true"/>. The default-implementation pattern means existing and
+    ///   third-party section implementations remain source-compatible.
+    /// </remarks>
+    bool RequiresLeadingDivider => false;
 }

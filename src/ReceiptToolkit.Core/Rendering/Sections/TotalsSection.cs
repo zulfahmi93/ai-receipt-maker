@@ -72,6 +72,9 @@ public sealed class TotalsSection : IReceiptSection
     private const string TaxLabelFallback = "Tax";
 
     /// <inheritdoc />
+    public bool RequiresLeadingDivider => true;
+
+    /// <inheritdoc />
     public float Measure(float width, ReceiptData data, RenderContext ctx)
     {
         ArgumentNullException.ThrowIfNull(data);
