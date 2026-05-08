@@ -12,4 +12,10 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\examples\sample_receipt_data.json"
+                      Link="Resources\sample_receipt_data.json"
+                      LogicalName="ReceiptToolkit.Api.Resources.sample_receipt_data.json" />
+  </ItemGroup>
+
 </Project>
