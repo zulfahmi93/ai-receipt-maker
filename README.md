@@ -119,7 +119,7 @@ checked-in bytes under `examples/golden/` are regenerated through the manual
 - `examples/sample_receipt_long_items.json` exercises multi-page PDF output.
 
 Money fields are JSON strings, for example `"unitPrice": "12.50"` and
-`"grandTotal": "56.73"`. Tax rates are ratios and remain JSON numbers.
+`"grandTotal": "57.05"`. Tax rates are ratios and remain JSON numbers.
 
 ## Limitations
 
@@ -128,16 +128,18 @@ Money fields are JSON strings, for example `"unitPrice": "12.50"` and
 - PDF/A, PDF/UA tagging, and accessibility metadata are outside the MVP.
 - Telegram uses long polling; webhook deployment is documented as future work in
   ADR 0003.
-- Visual layout follows the current mockup but Phase 3c visual polish items
-  remain tracked in `docs/PROGRESS.md`.
+- A small handful of mockup nits remain — see the "Phase 3c-polish" follow-up
+  section in `docs/PROGRESS.md` (header logo image rendering, payment
+  card-icon glyph, customer/cashier column order, footer block centering,
+  ms-MY time-suffix glyph).
 
 ## Future Work
 
-- Land initial Linux-generated golden PDF/PNG artifacts.
-- Add webhook mode for hosted Telegram deployments.
+- Add webhook mode for hosted Telegram deployments (ADR 0003).
 - Promote the SkiaSharp 4 preview dependency when a stable line exposes the
   variable-font axis API used by `FontProvider`.
-- Continue visual polish against `mockups/receipt.png`.
+- Vision-LLM intake flow described in `docs/plans/001-car-workshop-jobcard.md`
+  (Telegram photo → vision model → structured job data → renderer).
 
 ## Version Decision Log
 
