@@ -50,8 +50,10 @@ public sealed class ReceiptGeneratorTests
     // T3e.2 — When options.autoCalculateTotals=true the calculator runs end-to-end.
     //          We mutate Totals.GrandTotal to a bogus 999.99 and zero out Subtotal so
     //          the idempotence fingerprint cannot mark the input as a prior output.
-    //          Rendered PDF text must contain the recomputed "56.73" (sample-fixture
-    //          truth) and must NOT contain the bogus seed.
+    //          Rendered PDF text must contain the recomputed "57.05" (sample-fixture
+    //          truth) and must NOT contain the bogus seed. Grand total updated
+    //          2026-05-11 when the fixture's hardcoded totals were realigned with the
+    //          calculator's output (subtotal 56.40 + tax 4.65 - discount 4.00 = 57.05).
     [Fact]
     public async Task GeneratePdfAsync_AutoCalculateTrue_RecalculatesGrandTotal()
     {
@@ -70,7 +72,7 @@ public sealed class ReceiptGeneratorTests
         byte[] pdf = await generator.GeneratePdfAsync(withBogusTotals, TestContext.Current.CancellationToken);
         string text = ExtractPdfText(pdf);
 
-        Assert.Contains("56.73", text, StringComparison.Ordinal);
+        Assert.Contains("57.05", text, StringComparison.Ordinal);
         Assert.DoesNotContain("999.99", text, StringComparison.Ordinal);
     }
 

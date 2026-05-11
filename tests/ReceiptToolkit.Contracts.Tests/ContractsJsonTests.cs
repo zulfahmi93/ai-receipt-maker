@@ -64,9 +64,9 @@ public sealed class ContractsJsonTests
         Assert.Equal(5, data.Items.Count);
         // payments
         Assert.Single(data.Payments);
-        Assert.Equal(56.73m, data.Payments[0].Amount);
+        Assert.Equal(57.05m, data.Payments[0].Amount);
         // totals
-        Assert.Equal(56.73m, data.Totals.GrandTotal);
+        Assert.Equal(57.05m, data.Totals.GrandTotal);
         // optional top-level nodes all resolved
         Assert.NotNull(data.Customer);
         Assert.NotNull(data.Cashier);

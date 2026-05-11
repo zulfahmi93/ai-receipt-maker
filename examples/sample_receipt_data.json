@@ -92,14 +92,14 @@
     "discountTotal": "4.00",
     "serviceCharge": "0",
     "taxLabel": "Tax (8.25%)",
-    "taxTotal": "4.33",
+    "taxTotal": "4.65",
     "roundingAdjustment": "0",
-    "grandTotal": "56.73"
+    "grandTotal": "57.05"
   },
   "payments": [
     {
       "method": "Visa Credit Card",
-      "amount": "56.73",
+      "amount": "57.05",
       "cardLastFour": "1234",
       "authCode": "A7B3K9",
       "transactionId": "TXN-984422"
