@@ -77,22 +77,20 @@ public sealed class QrSectionTests
             section.Draw(canvas, new SKPoint(0f, 0f), Width, dataWithQr, ctx);
 
             // Sample coord inside the QR top-left finder-pattern region.
-            // The QR matrix is centred within the Width=360 receipt: qrLeft = (360-120)/2 = 120.
-            // QrSection uses QrTopPadding=0 so the matrix starts at origin.Y=0.
+            // QrSize=72f; QrSection uses QrTopPadding=0 so matrix starts at origin.Y=0.
+            // qrLeft = (360 - 72) / 2 = 144.
             //
             // Finder-pattern geometry for QRCoder ECCLevel.L encoding
             // "https://example.com/receipt/INV-2025-06789":
             //   The QR version is deterministic for this value (~v3, 29 modules).
-            //   cellSize = 120 / 29 ≈ 4.14 px.
+            //   cellSize = 72 / 29 ≈ 2.48 px.
             //   The top-left 7x7 finder pattern occupies modules [0..6, 0..6].
             //   Its centre 3x3 fill (always dark) spans modules [2..4, 2..4].
-            //   Module (3, 3) centre pixel ≈ (qrLeft + 3.5*cellSize, 0 + 3.5*cellSize)
-            //                              ≈ (120 + 14.5, 14.5) → pixel (134, 14).
+            //   Module (3, 3) centre pixel ≈ (qrLeft + 3.5*cellSize, 3.5*cellSize)
+            //                              ≈ (144 + 8.7, 8.7) → pixel (153, 9).
             //   Modules (row=3, col=3) are GUARANTEED dark in any valid QR code.
-            //   Original coord (176, 4) landed on a light module for this specific
-            //   value; updated to the finder-pattern centre which is always dark.
-            int x = 134;
-            int y = 14;
+            int x = 153;
+            int y = 9;
 
             SKColor actualPixel = bitmap.GetPixel(x, y);
 

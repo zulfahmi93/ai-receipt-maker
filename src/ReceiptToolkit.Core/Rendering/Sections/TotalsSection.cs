@@ -6,8 +6,8 @@ using SkiaSharp;
 namespace ReceiptToolkit.Core.Rendering.Sections;
 
 /// <summary>
-///   Renders the receipt totals band: conditional sub-total rows followed by a
-///   highlighted TOTAL bar showing the grand total.
+///   Renders the receipt totals band: a horizontal divider rule above the Subtotal row,
+///   conditional sub-total rows, then a highlighted TOTAL bar showing the grand total.
 /// </summary>
 /// <remarks>
 ///   <para>
@@ -15,6 +15,13 @@ namespace ReceiptToolkit.Core.Rendering.Sections;
 ///     Subtotal (always), Discount (iff non-zero), Service Charge (iff non-zero),
 ///     Tax (iff <see cref="ReceiptOptions.ShowTaxBreakdown"/> is true),
 ///     Rounding (iff non-zero), then the TOTAL bar (always).
+///   </para>
+///   <para>
+///     A thin horizontal rule is drawn above the Subtotal row using
+///     <c>theme.dividerColor</c> (resolved via <see cref="ThemeColors.ResolveOrDefault"/>,
+///     falling back to <see cref="ThemeColors.DefaultDividerColor"/>). The rule occupies
+///     <see cref="RuleTopPadding"/> + <see cref="RuleStrokeWidth"/> pixels at the section top,
+///     and both values are included in <see cref="Measure"/>.
 ///   </para>
 ///   <para>
 ///     Sub-total row labels and values use Normal and SemiBold typefaces respectively.
@@ -50,6 +57,10 @@ public sealed class TotalsSection : IReceiptSection
     private const float TotalBarHeight = 22f;
     private const float TotalFontSize = 14f;
 
+    // Rule line metrics — divider above Subtotal row.
+    private const float RuleTopPadding = 4f;
+    private const float RuleStrokeWidth = 1f;
+
     // Right-margin for value text within the TOTAL bar — ensures the sample point
     // (width - 10, height - 8) lands on the highlight fill, not on glyph antialiasing.
     private const float TotalValueRightMargin = 12f;
@@ -84,6 +95,9 @@ public sealed class TotalsSection : IReceiptSection
 
         float height = 0f;
 
+        // Rule line above the first sub-row (Subtotal is always present).
+        height += RuleTopPadding + RuleStrokeWidth;
+
         // Sub-total rows.
         for (int i = 0; i < rows.Count; i++)
         {
@@ -117,6 +131,7 @@ public sealed class TotalsSection : IReceiptSection
         SKColor textColor = ThemeColors.ResolveOrDefault(data.Theme?.TextColor, ThemeColors.DefaultTextColor);
         SKColor mutedColor = ThemeColors.ResolveOrDefault(data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor);
         SKColor highlightColor = ThemeColors.ResolveOrDefault(data.Theme?.HighlightColor, ThemeColors.DefaultHighlightColor);
+        SKColor dividerColor = ThemeColors.ResolveOrDefault(data.Theme?.DividerColor, ThemeColors.DefaultDividerColor);
 
         SKTypeface labelFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
         SKTypeface valueFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.SemiBold);
@@ -127,6 +142,21 @@ public sealed class TotalsSection : IReceiptSection
         List<(string Label, decimal Amount)> rows = MaterializeSubRows(data);
 
         float y = origin.Y;
+
+        // Draw rule line above first sub-row.
+        float ruleY = y + RuleTopPadding;
+        using (var rulePaint = new SKPaint
+        {
+            Color = dividerColor,
+            IsAntialias = false,
+            StrokeWidth = RuleStrokeWidth,
+            Style = SKPaintStyle.Stroke,
+        })
+        {
+            canvas.DrawLine(origin.X, ruleY, origin.X + width, ruleY, rulePaint);
+        }
+
+        y += RuleTopPadding + RuleStrokeWidth;
 
         // Draw sub-total rows.
         for (int i = 0; i < rows.Count; i++)

@@ -32,11 +32,12 @@ namespace ReceiptToolkit.Core.Rendering.Sections;
 public sealed class QrSection : IReceiptSection
 {
     // Matrix dimensions.
-    // QrSize=120f centres a readable matrix inside the default 360-wide receipt.
-    private const float QrSize = 120f;
+    // DefaultQrSize=72f: compact footprint matching mockup; module pitch = 72/29 ≈ 2.48px
+    // which satisfies the scan-readability minimum of ≥2px per module.
+    private const float QrSize = 72f;
 
     // QrTopPadding=0f — the matrix starts at the top edge of the section's allocated area.
-    // T3b.18 samples at y=4; with no top padding the QR rect spans y∈[0,120], so y=4 is
+    // T3b.18 samples at y=14; with no top padding the QR rect spans y∈[0,72], so y=14 is
     // inside the matrix regardless of which row is sampled.
     private const float QrTopPadding = 0f;
 

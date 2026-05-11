@@ -15,7 +15,7 @@ namespace ReceiptToolkit.Core.Rendering.Sections;
 ///       <item><description>ThankYouMessage — SemiBold, <c>ThankYouFontSize</c>.</description></item>
 ///       <item><description>FooterNote — Normal, <c>BodyFontSize</c>.</description></item>
 ///       <item><description>ReturnPolicy — Normal, <c>BodyFontSize</c>.</description></item>
-///       <item><description>LegalNote — Normal, <c>BodyFontSize</c>.</description></item>
+///       <item><description>LegalNote — Normal, <c>LegalNoteFontSize</c> (smaller than BodyFontSize to de-emphasise fine print).</description></item>
 ///       <item><description>Each CustomFooterLine — Normal, <c>BodyFontSize</c>.</description></item>
 ///     </list>
 ///   </para>
@@ -26,9 +26,10 @@ namespace ReceiptToolkit.Core.Rendering.Sections;
 ///     five fields is non-blank.  Each contact line uses a smaller muted font.
 ///   </para>
 ///   <para>
-///     All lines are left-aligned at <c>origin.X</c>.  Measure treats all body lines as
-///     <c>LineHeight</c> (≥ both font sizes plus padding) to keep the geometric height
-///     assertion T3b.22 working without per-line size logic in the measurement pass.
+///     Each line's slot height = <c>fontSize × LineSpacingFactor</c>.  Inter-line gap
+///     within a block = <c>slot - fontSize</c>.  This gives a tight but readable rhythm
+///     that scales with the per-entry font size (tighter than the legacy fixed
+///     LineHeight/LineGap pair).
 ///   </para>
 ///   <para>
 ///     Layout numerics are local constants in Phase 3b; Phase 3c may pull them from
@@ -37,16 +38,16 @@ namespace ReceiptToolkit.Core.Rendering.Sections;
 /// </remarks>
 public sealed class FooterSection : IReceiptSection
 {
-    // Uniform line height used for all body and contact lines in Measure.
-    // 14f is >= ThankYouFontSize=13 and >= BodyFontSize=11, so every line fits.
-    private const float LineHeight = 14f;
-
-    // Vertical gap between consecutive lines within the same block.
-    private const float LineGap = 2f;
+    // Multiplier applied to each entry's font size to derive its line slot height.
+    // 1.10 gives a tight but readable rhythm (tighter than the legacy 1.15 factor).
+    // slot = fontSize * LineSpacingFactor; inter-line gap = slot - fontSize.
+    private const float LineSpacingFactor = 1.1f;
 
     // Font sizes — body lines use 11pt, thank-you slightly larger at 13pt for emphasis.
+    // Legal note uses a smaller 9pt to visually de-emphasise fine print.
     private const float BodyFontSize = 11f;
     private const float ThankYouFontSize = 13f;
+    private const float LegalNoteFontSize = 9f;
 
     // Contact sub-block uses a smaller muted font to visually de-emphasise.
     private const float ContactFontSize = 10f;
@@ -62,22 +63,15 @@ public sealed class FooterSection : IReceiptSection
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(ctx);
 
-        int bodyLineCount = CountWrappedLines(MaterializeBodyEntries(data), width, ctx);
-        int contactLineCount = data.Options?.ShowFooterContact == true
-            ? CountWrappedLines(MaterializeContactEntries(data.Business), width, ctx)
-            : 0;
+        float height = MeasureBlock(MaterializeBodyEntries(data), width, ctx);
 
-        float height = 0f;
-
-        if (bodyLineCount > 0)
+        if (data.Options?.ShowFooterContact == true)
         {
-            height += (bodyLineCount * LineHeight) + ((bodyLineCount - 1) * LineGap);
-        }
-
-        if (contactLineCount > 0)
-        {
-            height += ContactBlockTopGap;
-            height += (contactLineCount * LineHeight) + ((contactLineCount - 1) * LineGap);
+            float contactHeight = MeasureBlock(MaterializeContactEntries(data.Business), width, ctx);
+            if (contactHeight > 0f)
+            {
+                height += ContactBlockTopGap + contactHeight;
+            }
         }
 
         return height;
@@ -98,17 +92,19 @@ public sealed class FooterSection : IReceiptSection
 
         foreach (LineSpec entry in MaterializeBodyEntries(data))
         {
+            float slot = entry.FontSize * LineSpacingFactor;
+            float gap = slot - entry.FontSize;
             SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, entry.Weight);
             IReadOnlyList<string> wrapped = TextMeasurer.WrapLines(entry.Text, width, face, entry.FontSize);
             foreach (string line in wrapped)
             {
                 if (!firstBodyLine)
                 {
-                    y += LineGap;
+                    y += gap;
                 }
 
                 DrawLine(canvas, origin.X, y, line, face, entry.FontSize, textColor);
-                y += LineHeight;
+                y += slot;
                 firstBodyLine = false;
             }
         }
@@ -124,16 +120,18 @@ public sealed class FooterSection : IReceiptSection
 
                 foreach (LineSpec entry in contactEntries)
                 {
+                    float slot = entry.FontSize * LineSpacingFactor;
+                    float gap = slot - entry.FontSize;
                     IReadOnlyList<string> wrapped = TextMeasurer.WrapLines(entry.Text, width, face, entry.FontSize);
                     foreach (string line in wrapped)
                     {
                         if (!firstContactLine)
                         {
-                            y += LineGap;
+                            y += gap;
                         }
 
                         DrawLine(canvas, origin.X, y, line, face, entry.FontSize, mutedColor);
-                        y += LineHeight;
+                        y += slot;
                         firstContactLine = false;
                     }
                 }
@@ -141,24 +139,37 @@ public sealed class FooterSection : IReceiptSection
         }
     }
 
-    // Sums wrapped line counts for every entry at the given width, using each entry's
-    // own typeface weight + font size. Return type is List<...> upstream to satisfy
-    // CA1859 (private/internal helpers must not widen to IReadOnlyList<T>).
-    private static int CountWrappedLines(List<LineSpec> entries, float width, RenderContext ctx)
+    // Sums slot heights for every wrapped line in each entry at the given width.
+    // Each line's slot = entry.FontSize * LineSpacingFactor; inter-line gap = slot - fontSize.
+    // Returns total block height (0f when entries is empty).
+    private static float MeasureBlock(List<LineSpec> entries, float width, RenderContext ctx)
     {
-        int count = 0;
+        float height = 0f;
+        bool first = true;
         foreach (LineSpec entry in entries)
         {
+            float slot = entry.FontSize * LineSpacingFactor;
+            float gap = slot - entry.FontSize;
             SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, entry.Weight);
             IReadOnlyList<string> wrapped = TextMeasurer.WrapLines(entry.Text, width, face, entry.FontSize);
-            count += wrapped.Count;
+            foreach (string _ in wrapped)
+            {
+                if (!first)
+                {
+                    height += gap;
+                }
+
+                height += slot;
+                first = false;
+            }
         }
 
-        return count;
+        return height;
     }
 
     // Builds the ordered list of body entries (text + weight + font size) in render order:
-    // ThankYouMessage (SemiBold, ThankYouFontSize), FooterNote, ReturnPolicy, LegalNote,
+    // ThankYouMessage (SemiBold, ThankYouFontSize), FooterNote, ReturnPolicy,
+    // LegalNote (LegalNoteFontSize — smaller to de-emphasise fine print),
     // and each non-blank custom line (Normal, BodyFontSize).
     private static List<LineSpec> MaterializeBodyEntries(ReceiptData data)
     {
@@ -182,7 +193,7 @@ public sealed class FooterSection : IReceiptSection
 
         if (!string.IsNullOrWhiteSpace(footer.LegalNote))
         {
-            entries.Add(new LineSpec(footer.LegalNote!, SKFontStyleWeight.Normal, BodyFontSize));
+            entries.Add(new LineSpec(footer.LegalNote!, SKFontStyleWeight.Normal, LegalNoteFontSize));
         }
 
         foreach (string line in footer.CustomFooterLines)

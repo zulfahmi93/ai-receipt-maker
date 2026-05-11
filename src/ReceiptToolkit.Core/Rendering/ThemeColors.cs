@@ -60,6 +60,13 @@ internal static class ThemeColors
     public static readonly SKColor DefaultPaperColor = SKColors.White;
 
     /// <summary>
+    ///   Default color for uppercase muted cell labels (e.g. PaymentSection 2x2 grid).
+    ///   Hex #8A8A8A is a mid-gray that reads against light paper backgrounds while
+    ///   remaining visually subordinate to body-weight values. // 3c-polish D
+    /// </summary>
+    public static readonly SKColor DefaultMutedLabelColor = new SKColor(0x8A, 0x8A, 0x8A);
+
+    /// <summary>
     ///   Returns the parsed <see cref="SKColor"/> from <paramref name="hex"/>, or
     ///   <paramref name="fallback"/> when <paramref name="hex"/> is null, whitespace, or
     ///   does not satisfy <see cref="SKColor.TryParse(string, out SKColor)"/>.
