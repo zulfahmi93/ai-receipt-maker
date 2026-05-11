@@ -118,12 +118,35 @@ with a Code Reviewer pass at the cluster boundary.
 Build 0/0. Core tests **108 → 133 passed + 2 skipped** (+25). Contracts 7/7,
 Cli 7/7, Api 16/16, TelegramBot 21/21 unchanged — total **184 passed + 2 skipped**.
 
-**Still pending:**
-- V9.3-r2 visual sign-off vs `mockups/receipt.png` (UI/UX Expert pass).
-- Linux-CI golden regen workflow run to refresh
-  `examples/golden/sample_receipt_data.golden.{pdf,png}` to the new polished
-  bytes — batch regeneration was the chosen cadence (one PR, reviewed end of
-  phase).
+**Closed 2026-05-11:**
+- V9.3-r2 visual sign-off — PASS-WITH-NITS. All 10 polish items visible
+  in both macOS local render and Linux CI render. Remaining nits
+  (logo image absent in render, payment cell icon-glyph deferred,
+  customer/cashier column order, footer block alignment) are all
+  pre-existing — none introduced by 3c-polish.
+- Linux-CI golden regen — `regen-goldens.yml` run #25667784427 produced
+  fresh `examples/golden/sample_receipt_data.golden.{pdf,png}` from the
+  polished output. PR #2 merged at `25d3c51`. PDF 116463 → 111520 bytes
+  (-4.2 KB, mostly from QR compaction); PNG 160027 → 159297 bytes (-0.7 KB).
+- T3c.1 mid-receipt pixel guard dropped — section height shifts pushed the
+  sample point onto paper-between-rows on Linux CI; pre-authorised fallback
+  per the original test comment. T3c.2's magenta-corner assertion plus
+  every section's draw-presence test plus the now-locked Linux golden
+  bytes redundantly cover the same bug class. Fix at `3d42dcb`.
+- CI green on main at `3d42dcb`.
+
+**New follow-up:**
+- **Sample fixture totals inconsistency.** `examples/sample_receipt_data.json`
+  carries hardcoded `taxTotal: "4.33"` + `grandTotal: "56.73"` AND
+  `autoCalculateTotals: true`. Production path (ReceiptGenerator →
+  ReceiptCalculator) recomputes from per-item `taxRate` and produces
+  `taxTotal=4.65` + `grandTotal=57.05`, which is what the locked golden
+  bytes now encode. The visual harness `Phase3bVisualPreview.cs` draws
+  fixture values directly (no calc step) and shows the stale 4.33 / 56.73,
+  so macOS dev renders and CI goldens disagree on totals. Fix options:
+  (a) update hardcoded JSON values to match calc output, (b) flip
+  `autoCalculateTotals: false`, (c) drop the hardcoded totals entirely.
+  Recommend (a) so JSON stays a faithful round-trip artefact. Not blocking.
 
 ## Phase 3b carry-over (open follow-ups, do not block sub-cluster B/C/D)
 
@@ -222,7 +245,7 @@ Refactor at **cluster boundary**, not per-task. Targeted test runs (`--filter`),
 
 ## Build sanity
 
-Last verified: 2026-05-11 (Phase 3c-polish close — all 10 mockup-parity items landed via 5 parallel worktree-isolated TDD orchestrators. Build 0/0; Contracts 7/7, Core **133 passed + 2 skipped** (Linux-only goldens), Cli 7/7, Api 16/16, TelegramBot 21/21 — total **184 passed + 2 skipped**; wall time ~1s per project. New divergence #29 logs the parallel-worktree cross-contamination that bundled E into D's commit. V9.3-r2 visual sign-off vs `mockups/receipt.png` + Linux-CI golden regen still pending.).
+Last verified: 2026-05-11 (Phase 3c-polish FULLY CLOSED — V9.3-r2 sign-off PASS-WITH-NITS, Linux-CI golden regen merged (`25d3c51`), T3c.1 brittle pixel guard dropped per pre-authorised fallback (`3d42dcb`). Build 0/0; Contracts 7/7, Core **133 passed + 2 skipped (now passing on Linux)**, Cli 7/7, Api 16/16, TelegramBot 21/21 — total **184 passed on Linux CI**. macOS local still skips the 2 Linux-only goldens cleanly. Divergence #29 logs the parallel-worktree cross-contamination that bundled E into D's commit. Sample fixture totals/calc inconsistency surfaced as a new follow-up — not blocking.).
 
 ```bash
 dotnet build receipt-toolkit.sln
