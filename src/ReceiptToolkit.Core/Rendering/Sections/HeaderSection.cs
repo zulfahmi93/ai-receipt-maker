@@ -85,7 +85,7 @@ public sealed class HeaderSection : IReceiptSection
             y += LogoSize + LogoGap;
         }
 
-        // Business name — always drawn.
+        // Business name — always drawn, centered.
         SKColor textColor = ThemeColors.ResolveOrDefault(data.Theme?.TextColor, ThemeColors.DefaultTextColor);
         SKTypeface boldFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Bold);
         DrawCenteredLine(
@@ -103,13 +103,17 @@ public sealed class HeaderSection : IReceiptSection
             y += NameTaglineGap;
             SKColor mutedColor = ThemeColors.ResolveOrDefault(data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor);
             SKTypeface normalFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
-            DrawCenteredLine(
+
+            // Tagline right-anchors under the wordmark: right edge aligns with the
+            // section right margin (origin.X + width). This matches the mockup where
+            // the tagline reads flush-right regardless of business-name width.
+            DrawRightAlignedLine(
                 canvas,
                 data.Business.BusinessTagline!,
                 normalFace,
                 TaglineFontSize,
                 mutedColor,
-                centerX,
+                origin.X + width,
                 y + TaglineFontSize);
         }
     }
@@ -145,6 +149,38 @@ public sealed class HeaderSection : IReceiptSection
         };
 
         float x = centerX - (bounds.Width / 2f) - bounds.Left;
+        canvas.DrawText(text, x, baselineY, font, paint);
+    }
+
+    /// <summary>
+    ///   Draws <paramref name="text"/> so its right ink edge aligns with
+    ///   <paramref name="rightEdgeX"/> at the given baseline.
+    /// </summary>
+    private static void DrawRightAlignedLine(
+        SKCanvas canvas,
+        string text,
+        SKTypeface typeface,
+        float size,
+        SKColor color,
+        float rightEdgeX,
+        float baselineY)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+
+        SKRect bounds = TextMeasurer.Measure(text, typeface, size);
+        using var font = new SKFont(typeface, size);
+        using var paint = new SKPaint
+        {
+            Color = color,
+            IsAntialias = true,
+        };
+
+        // Right-align: position so that the glyph run ends exactly at rightEdgeX.
+        // bounds.Left is the leftmost ink offset (usually negative or near-zero for LTR).
+        float x = rightEdgeX - bounds.Width - bounds.Left;
         canvas.DrawText(text, x, baselineY, font, paint);
     }
 }
