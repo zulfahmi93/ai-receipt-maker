@@ -35,15 +35,15 @@ public sealed class MetaSection : IReceiptSection
     private const float LabelColumnFraction = 0.35f;
     private const string FontFamily = "Inter";
 
-    private const string LabelReceipt = "Receipt #";
-    private const string LabelDate = "Date";
-    private const string LabelTime = "Time";
-    private const string LabelDateAndTime = "Date & Time";
+    private const string LabelReceipt = "RECEIPT NO.";
+    private const string LabelDate = "DATE";
+    private const string LabelTime = "TIME";
+    private const string LabelDateAndTime = "DATE & TIME";
     private const string DateTimeSeparator = " · ";
-    private const string LabelBranch = "Branch";
-    private const string LabelTerminal = "Terminal";
-    private const string LabelOrder = "Order";
-    private const string LabelReference = "Ref";
+    private const string LabelBranch = "BRANCH";
+    private const string LabelTerminal = "TERMINAL";
+    private const string LabelOrder = "ORDER";
+    private const string LabelReference = "REF";
 
     /// <inheritdoc />
     public float Measure(float width, ReceiptData data, RenderContext ctx)
@@ -68,7 +68,7 @@ public sealed class MetaSection : IReceiptSection
         ArgumentNullException.ThrowIfNull(ctx);
 
         SKColor textColor = ThemeColors.ResolveOrDefault(data.Theme?.TextColor, ThemeColors.DefaultTextColor);
-        SKColor mutedColor = ThemeColors.ResolveOrDefault(data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor);
+        SKColor labelColor = ThemeColors.DefaultMutedLabelColor;
         SKTypeface face = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
 
         float y = origin.Y;
@@ -80,7 +80,7 @@ public sealed class MetaSection : IReceiptSection
                 y += RowGap;
             }
 
-            DrawRow(canvas, origin.X, y, width, label, value, face, mutedColor, textColor);
+            DrawRow(canvas, origin.X, y, width, label, value, face, labelColor, textColor);
             y += RowHeight;
             first = false;
         }

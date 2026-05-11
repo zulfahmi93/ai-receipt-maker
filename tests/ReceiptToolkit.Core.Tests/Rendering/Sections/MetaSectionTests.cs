@@ -96,7 +96,7 @@ public sealed class MetaSectionTests
         string formattedDate = DateTimeFormatter.FormatDate(data.Receipt.DateTime!, data.Options!);
         string formattedTime = DateTimeFormatter.FormatTime(data.Receipt.DateTime!, data.Options!);
 
-        Assert.Contains("Date & Time", text, StringComparison.Ordinal);
+        Assert.Contains("DATE & TIME", text, StringComparison.Ordinal);
         Assert.Contains($"{formattedDate} · {formattedTime}", text, StringComparison.Ordinal);
 
         const float Width = 360f;
@@ -129,8 +129,8 @@ public sealed class MetaSectionTests
 
         string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
-        Assert.DoesNotContain("Date & Time", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("Time", text, StringComparison.Ordinal);
-        Assert.Contains("Date", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("DATE & TIME", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("TIME", text, StringComparison.Ordinal);
+        Assert.Contains("DATE", text, StringComparison.Ordinal);
     }
 }

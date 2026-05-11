@@ -71,11 +71,11 @@ public sealed class ItemTableSection : IReceiptSection
 
     private const string FontFamily = "Inter";
 
-    // Presentation-chrome column headers (i18n-deferred, see remarks).
-    private const string HeaderItem = "Item";
-    private const string HeaderQty = "Qty";
-    private const string HeaderPrice = "Price";
-    private const string HeaderTotal = "Total";
+    // Presentation-chrome column headers (i18n-deferred, see remarks). All-caps per 3c-polish B.
+    private const string HeaderItem = "ITEM";
+    private const string HeaderQty = "QTY";
+    private const string HeaderPrice = "PRICE";
+    private const string HeaderTotal = "TOTAL";
 
     /// <inheritdoc />
     public float Measure(float width, ReceiptData data, RenderContext ctx)
@@ -156,8 +156,8 @@ public sealed class ItemTableSection : IReceiptSection
 
         float y = origin.Y;
 
-        // --- Header row ---
-        DrawHeaderRow(canvas, origin.X, y, nameColWidth, qtyColLeft, priceColLeft, totalColLeft, boldFace, textColor);
+        // --- Header row --- labels use muted label colour per 3c-polish B.
+        DrawHeaderRow(canvas, origin.X, y, nameColWidth, qtyColLeft, priceColLeft, totalColLeft, boldFace, ThemeColors.DefaultMutedLabelColor);
         y += RowHeight + HeaderBottomGap;
 
         // --- Item rows ---
