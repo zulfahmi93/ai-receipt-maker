@@ -143,7 +143,7 @@
   "options": {
     "currency": "MYR",
     "currencySymbol": "RM",
-    "locale": "ms-MY",
+    "locale": "en-MY",
     "dateFormat": "dd MMM yyyy",
     "timeFormat": "hh:mm tt",
     "showItemDescription": false,
