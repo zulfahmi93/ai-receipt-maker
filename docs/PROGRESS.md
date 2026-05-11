@@ -135,18 +135,33 @@ Cli 7/7, Api 16/16, TelegramBot 21/21 unchanged — total **184 passed + 2 skipp
   bytes redundantly cover the same bug class. Fix at `3d42dcb`.
 - CI green on main at `3d42dcb`.
 
-**New follow-up:**
-- **Sample fixture totals inconsistency.** `examples/sample_receipt_data.json`
-  carries hardcoded `taxTotal: "4.33"` + `grandTotal: "56.73"` AND
-  `autoCalculateTotals: true`. Production path (ReceiptGenerator →
-  ReceiptCalculator) recomputes from per-item `taxRate` and produces
-  `taxTotal=4.65` + `grandTotal=57.05`, which is what the locked golden
-  bytes now encode. The visual harness `Phase3bVisualPreview.cs` draws
-  fixture values directly (no calc step) and shows the stale 4.33 / 56.73,
-  so macOS dev renders and CI goldens disagree on totals. Fix options:
-  (a) update hardcoded JSON values to match calc output, (b) flip
-  `autoCalculateTotals: false`, (c) drop the hardcoded totals entirely.
-  Recommend (a) so JSON stays a faithful round-trip artefact. Not blocking.
+**Closed in follow-up housekeeping batches (2026-05-11):**
+
+- **Sample fixture totals inconsistency** — closed via `9eab9f3`: fixture's
+  hardcoded `taxTotal` + `grandTotal` realigned to calculator output
+  (4.65 / 57.05). Visual harness + Linux CI now agree.
+- **Bot `dotnet exec` doc** — `15e7a11` added Local development section to
+  `src/ReceiptToolkit.TelegramBot/README.md` capturing divergence #28.
+- **GH Actions Node 20 deprecation** — `a51270a` opted both workflows into
+  Node.js 24 via `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` env var.
+- **Customer/Cashier column order** — `ed985e3` flipped to Cashier-left /
+  Customer-right per mockup.
+- **Time row `PG`** — `efe869e` switched fixture locale `ms-MY` → `en-MY`
+  so the `tt` designator resolves to English `AM`/`PM`.
+- **Footer alignment** — `d871409` centred body + contact lines.
+- **README post-3c-polish refresh** — `3b8f39e` updated totals reference,
+  Limitations, Future Work, and pointer to the workshop vision doc.
+- **Items 8 + 9 — header logo + payment-method icon column** — `0f14ebc`
+  added `PaymentInfo.Icon` contract field + `RenderContext.ResolvedPaymentIcon`
+  + 3-arg exporter overloads + PaymentSection icon-draw branch. `106b736`
+  swapped the sample fixture from "Elevate Studio" (boutique stationery) to
+  "Kerani Auto Workshop" (car-workshop demo aligned with the
+  `docs/plans/001-car-workshop-jobcard.md` vision), with both `business.businessLogoUrl`
+  and `payments[0].icon` inlined as `data:image/png;base64,...` URIs so all
+  callers (test bin, CLI, API, bot) resolve them without per-project asset
+  bundling. Twenty-plus test assertions updated to match the new fixture
+  content. New goldens locked at `examples/golden/*` via regen PR #5
+  (merged into `main` ahead of `25673395996` CI run).
 
 ## Phase 3b carry-over (open follow-ups, do not block sub-cluster B/C/D)
 
