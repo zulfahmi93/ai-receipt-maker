@@ -43,7 +43,7 @@ public sealed class SvgExporterTests
         Assert.Contains("<svg", svg, StringComparison.Ordinal);
     }
 
-    // T3d.9 — The sample fixture's business name "Elevate Studio" surfaces in the SVG
+    // T3d.9 — The sample fixture's business name "Kerani Auto Workshop" surfaces in the SVG
     // payload as a contiguous substring. SkiaSharp's SVG backend serialises text via
     // <text> elements containing the literal characters; one draw call per <text>
     // element keeps the run contiguous. If a future Skia release splits the run across
@@ -58,6 +58,6 @@ public sealed class SvgExporterTests
         byte[] bytes = exporter.Export(data);
         string svg = Encoding.UTF8.GetString(bytes);
 
-        Assert.Contains("Elevate Studio", svg, StringComparison.Ordinal);
+        Assert.Contains("Kerani Auto Workshop", svg, StringComparison.Ordinal);
     }
 }

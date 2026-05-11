@@ -20,16 +20,17 @@ public sealed class TotalsSectionTests
     private const float Width = 360f;
 
     // T3b.11 — TotalsSection hides the discount row when DiscountTotal is zero.
-    //           Sample has DiscountTotal=4.00 (with-discount baseline). Mutating it to 0m
-    //           removes the discount row; Measure(with-discount) must be strictly greater
-    //           than Measure(without-discount), proving no gap row is reserved.
+    //           Sample now has DiscountTotal=0 (workshop demo — no discount).
+    //           Mutating it to 50.00m adds the discount row; Measure(with-discount)
+    //           must be strictly greater than Measure(without-discount, i.e. the
+    //           original sample), proving no gap row is reserved when discount is zero.
     [Fact]
     public void TotalsSection_HidesDiscountRow_WhenDiscountTotalIsZero()
     {
-        ReceiptData withDiscountData = SectionTestBase.LoadSampleData();
-        ReceiptData withoutDiscountData = withDiscountData with
+        ReceiptData withoutDiscountData = SectionTestBase.LoadSampleData();
+        ReceiptData withDiscountData = withoutDiscountData with
         {
-            Totals = withDiscountData.Totals with { DiscountTotal = 0m },
+            Totals = withoutDiscountData.Totals with { DiscountTotal = 50.00m },
         };
 
         var section = new TotalsSection();
@@ -38,7 +39,7 @@ public sealed class TotalsSectionTests
 
         Assert.True(
             section.Measure(Width, withDiscountData, ctx) > section.Measure(Width, withoutDiscountData, ctx),
-            "Expected Measure(DiscountTotal=4.00) > Measure(DiscountTotal=0) — discount row must be hidden when zero");
+            "Expected Measure(DiscountTotal=50.00) > Measure(DiscountTotal=0) — discount row must be hidden when zero");
     }
 
     // T3b.12 — TotalsSection hides the service-charge row when ServiceCharge is zero.

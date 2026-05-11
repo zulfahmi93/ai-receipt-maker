@@ -16,7 +16,7 @@ namespace ReceiptToolkit.Core.Tests.Rendering.Sections;
 public sealed class HeaderSectionTests
 {
     // T3b.1 — HeaderSection draws business.businessName onto the PDF; PdfPig's
-    //          extracted text from page 1 contains "Elevate Studio" verbatim.
+    //          extracted text from page 1 contains "Kerani Auto Workshop" verbatim.
     [Fact]
     public void HeaderSection_DrawsBusinessName()
     {
@@ -26,7 +26,7 @@ public sealed class HeaderSectionTests
 
         string pdfText = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
-        Assert.Contains("Elevate Studio", pdfText, StringComparison.Ordinal);
+        Assert.Contains("Kerani Auto Workshop", pdfText, StringComparison.Ordinal);
     }
 
     // T3b.2 — HeaderSection renders the tagline when business.businessTagline is non-null
@@ -63,8 +63,8 @@ public sealed class HeaderSectionTests
             heightWithout = section.Measure(Width, withoutTagline, ctx);
         }
 
-        Assert.Contains("Every detail, exceptional.", textWith, StringComparison.Ordinal);
-        Assert.DoesNotContain("Every detail, exceptional.", textWithout, StringComparison.Ordinal);
+        Assert.Contains("Honest work, honest price.", textWith, StringComparison.Ordinal);
+        Assert.DoesNotContain("Honest work, honest price.", textWithout, StringComparison.Ordinal);
         Assert.True(
             heightWith > heightWithout,
             $"Expected Measure(with tagline) > Measure(without tagline); got {heightWith} vs {heightWithout}");

@@ -3,8 +3,8 @@
 //             null-aware field rendering for customer and cashier bands.
 // Edge cases: null customer/cashier fields are hidden without leaving an empty row gap,
 //             verified via Measure shrinking when fields are set to null; non-null fields
-//             (customerName="Walk-in Customer", cashierName="Alex Johnson",
-//             cashierId="EMP-001") must appear in the PDF text.
+//             (customerName="Walk-in Customer", cashierName="Aiman Faris",
+//             cashierId="MECH-001") must appear in the PDF text.
 
 using ReceiptToolkit.Contracts;
 using ReceiptToolkit.Core.Rendering;
@@ -20,7 +20,7 @@ public sealed class CustomerCashierSectionTests
     //          are shown only when non-null, and null fields are hidden without leaving an
     //          empty row gap (verified by Measure(full) > Measure(all-null)). The sample
     //          fixture has customerName="Walk-in Customer" (other customer fields null),
-    //          cashierName="Alex Johnson", cashierId="EMP-001". All three non-null strings
+    //          cashierName="Aiman Faris", cashierId="MECH-001". All three non-null strings
     //          must appear in the full-data PDF text. When every customer + cashier field is
     //          set to null, none of those strings appear and Measure returns 0 (or strictly
     //          less than Measure(full)), confirming no empty gap row is reserved.
@@ -34,8 +34,8 @@ public sealed class CustomerCashierSectionTests
         string textFull = SectionTestBase.RenderSectionToPdfText(section, full, fonts);
 
         Assert.Contains("Walk-in Customer", textFull, StringComparison.Ordinal);
-        Assert.Contains("Alex Johnson", textFull, StringComparison.Ordinal);
-        Assert.Contains("EMP-001", textFull, StringComparison.Ordinal);
+        Assert.Contains("Aiman Faris", textFull, StringComparison.Ordinal);
+        Assert.Contains("MECH-001", textFull, StringComparison.Ordinal);
 
         // Null out the entire customer and cashier objects — the section must produce no
         // output. Customer and Cashier are nullable on ReceiptData so a null parent is the
@@ -49,8 +49,8 @@ public sealed class CustomerCashierSectionTests
         string textAllNull = SectionTestBase.RenderSectionToPdfText(section, allNull, fonts);
 
         Assert.DoesNotContain("Walk-in Customer", textAllNull, StringComparison.Ordinal);
-        Assert.DoesNotContain("Alex Johnson", textAllNull, StringComparison.Ordinal);
-        Assert.DoesNotContain("EMP-001", textAllNull, StringComparison.Ordinal);
+        Assert.DoesNotContain("Aiman Faris", textAllNull, StringComparison.Ordinal);
+        Assert.DoesNotContain("MECH-001", textAllNull, StringComparison.Ordinal);
 
         const float Width = 360f;
         float heightFull;

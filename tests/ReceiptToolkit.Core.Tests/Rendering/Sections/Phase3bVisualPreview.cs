@@ -47,7 +47,20 @@ public sealed class Phase3bVisualPreview
         ];
 
         using var fonts = new FontProvider();
-        using var ctx = new RenderContext(fonts, resolvedLogo: null);
+        // Resolve logo + payment icon so the harness preview matches the
+        // production path (ReceiptGenerator → exporters). Both resolve calls
+        // return null when the source is missing or unresolvable; the
+        // RenderContext simply renders no logo / placeholder icon in that case.
+        using SKImage? resolvedLogo = data.Options?.ShowLogo == true
+            ? LogoResolver.Resolve(data.Business.BusinessLogoUrl)
+            : null;
+        using SKImage? resolvedPaymentIcon = data.Payments.Count > 0
+            ? LogoResolver.Resolve(data.Payments[0].Icon)
+            : null;
+        using var ctx = new RenderContext(fonts, resolvedLogo)
+        {
+            ResolvedPaymentIcon = resolvedPaymentIcon,
+        };
 
         float[] heights = new float[sections.Length];
         float total = 0f;

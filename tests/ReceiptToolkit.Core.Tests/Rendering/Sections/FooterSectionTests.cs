@@ -24,8 +24,8 @@ public sealed class FooterSectionTests
     //           message disappears independently when its source field is nulled.
     //           The fixture provides:
     //             thankYouMessage  = "Thank you!"
-    //             footerNote       = "We appreciate your support."
-    //             returnPolicy     = "Returns accepted within 7 days with receipt."
+    //             footerNote       = "We appreciate your trust."
+    //             returnPolicy     = "Workmanship guaranteed 30 days."
     //             legalNote        = "This receipt is computer generated and does not require a signature."
     //           The nullable-parent guard `(data.Footer ?? new FooterInfo()) with { … }` is
     //           required because ReceiptData.Footer is FooterInfo? — a bare `data.Footer with`
@@ -40,8 +40,8 @@ public sealed class FooterSectionTests
         // Full render — all four messages must be present.
         string fullText = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
         Assert.Contains("Thank you!", fullText, StringComparison.Ordinal);
-        Assert.Contains("We appreciate your support.", fullText, StringComparison.Ordinal);
-        Assert.Contains("Returns accepted within 7 days with receipt.", fullText, StringComparison.Ordinal);
+        Assert.Contains("We appreciate your trust.", fullText, StringComparison.Ordinal);
+        Assert.Contains("Workmanship guaranteed 30 days.", fullText, StringComparison.Ordinal);
         // Legal note: per-word presence check (not verbatim) per divergence #18.
         // Linux FreeType produces slightly wider glyph metrics than macOS, so the
         // long legal note wraps at width=360 on Linux; PdfPig concatenates wrap-row
@@ -62,23 +62,23 @@ public sealed class FooterSectionTests
             SectionTestBase.RenderSectionToPdfText(section, noThanks, fonts),
             StringComparison.Ordinal);
 
-        // Null footerNote — only "We appreciate your support." must vanish.
+        // Null footerNote — only "We appreciate your trust." must vanish.
         ReceiptData noNote = data with
         {
             Footer = (data.Footer ?? new FooterInfo()) with { FooterNote = null },
         };
         Assert.DoesNotContain(
-            "We appreciate your support.",
+            "We appreciate your trust.",
             SectionTestBase.RenderSectionToPdfText(section, noNote, fonts),
             StringComparison.Ordinal);
 
-        // Null returnPolicy — only "Returns accepted within 7 days with receipt." must vanish.
+        // Null returnPolicy — only "Workmanship guaranteed 30 days." must vanish.
         ReceiptData noPolicy = data with
         {
             Footer = (data.Footer ?? new FooterInfo()) with { ReturnPolicy = null },
         };
         Assert.DoesNotContain(
-            "Returns accepted within 7 days with receipt.",
+            "Workmanship guaranteed 30 days.",
             SectionTestBase.RenderSectionToPdfText(section, noPolicy, fonts),
             StringComparison.Ordinal);
 
@@ -98,7 +98,7 @@ public sealed class FooterSectionTests
     }
 
     // T3b.21 — FooterSection renders both customFooterLines verbatim.
-    //           Sample fixture customFooterLines: ["Follow us @elevatestudio", "Visit elevatestudio.com"].
+    //           Sample fixture customFooterLines: ["Follow us @keraniauto", "Visit kerani.example"].
     //           Both must appear in the extracted PDF text with ordinal comparison.
     [Fact]
     public void FooterSection_RendersCustomFooterLines_Verbatim()
@@ -109,8 +109,8 @@ public sealed class FooterSectionTests
 
         string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
-        Assert.Contains("Follow us @elevatestudio", text, StringComparison.Ordinal);
-        Assert.Contains("Visit elevatestudio.com", text, StringComparison.Ordinal);
+        Assert.Contains("Follow us @keraniauto", text, StringComparison.Ordinal);
+        Assert.Contains("Visit kerani.example", text, StringComparison.Ordinal);
     }
 
     // T3b.21a — FooterSection skips blank/whitespace customFooterLines entries instead of
@@ -126,7 +126,7 @@ public sealed class FooterSectionTests
         {
             Footer = (baseData.Footer ?? new FooterInfo()) with
             {
-                CustomFooterLines = ["Follow us @elevatestudio", "Visit elevatestudio.com"],
+                CustomFooterLines = ["Follow us @keraniauto", "Visit kerani.example"],
             },
         };
 
@@ -134,7 +134,7 @@ public sealed class FooterSectionTests
         {
             Footer = (baseData.Footer ?? new FooterInfo()) with
             {
-                CustomFooterLines = ["Follow us @elevatestudio", "", "   ", "Visit elevatestudio.com"],
+                CustomFooterLines = ["Follow us @keraniauto", "", "   ", "Visit kerani.example"],
             },
         };
 

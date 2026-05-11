@@ -33,11 +33,11 @@ public sealed class ItemTableSectionTests
 
         string pdfText = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
-        Assert.Contains("Premium Notebook", pdfText, StringComparison.Ordinal);
-        Assert.Contains("Ballpoint Pen Set", pdfText, StringComparison.Ordinal);
-        Assert.Contains("Ceramic Coffee Mug", pdfText, StringComparison.Ordinal);
-        Assert.Contains("Canvas Tote Bag", pdfText, StringComparison.Ordinal);
-        Assert.Contains("Thank You Card", pdfText, StringComparison.Ordinal);
+        Assert.Contains("Brake Disc (Front, Pair)", pdfText, StringComparison.Ordinal);
+        Assert.Contains("Brake Pad (Front Set)", pdfText, StringComparison.Ordinal);
+        Assert.Contains("Engine Oil 5W-30 (4L)", pdfText, StringComparison.Ordinal);
+        Assert.Contains("Labour: Brake Service", pdfText, StringComparison.Ordinal);
+        Assert.Contains("Labour: Oil Change", pdfText, StringComparison.Ordinal);
     }
 
     // T3b.8 — ItemTableSection wraps long multi-word item names to ≥2 lines without column
@@ -100,8 +100,8 @@ public sealed class ItemTableSectionTests
 
     // T3b.9 — SKU column appears iff options.ShowSku == true. The sample fixture default is
     //          ShowSku=false. A record-with mutation flips it to true. When false, SKU strings
-    //          ("SKU-001" through "SKU-005") must NOT appear in the PDF text. When true, at
-    //          least "SKU-001" must appear. Text-presence is the primary assertion; a height
+    //          ("PRT-001" through "SRV-002") must NOT appear in the PDF text. When true, at
+    //          least "PRT-001" must appear. Text-presence is the primary assertion; a height
     //          assertion is omitted because a fixed-column layout may not increase row height
     //          when a new column is added at fixed width.
     [Fact]
@@ -123,17 +123,17 @@ public sealed class ItemTableSectionTests
         string textSkuOn = SectionTestBase.RenderSectionToPdfText(section, skuOn, fonts);
 
         // SKU strings must not appear when toggle is off.
-        Assert.DoesNotContain("SKU-001", textSkuOff, StringComparison.Ordinal);
-        Assert.DoesNotContain("SKU-002", textSkuOff, StringComparison.Ordinal);
+        Assert.DoesNotContain("PRT-001", textSkuOff, StringComparison.Ordinal);
+        Assert.DoesNotContain("PRT-002", textSkuOff, StringComparison.Ordinal);
 
         // SKU strings must appear when toggle is on.
-        Assert.Contains("SKU-001", textSkuOn, StringComparison.Ordinal);
-        Assert.Contains("SKU-002", textSkuOn, StringComparison.Ordinal);
+        Assert.Contains("PRT-001", textSkuOn, StringComparison.Ordinal);
+        Assert.Contains("PRT-002", textSkuOn, StringComparison.Ordinal);
     }
 
     // T3b.10 — Description sub-line appears iff options.ShowItemDescription == true. The
     //           sample fixture default is ShowItemDescription=false. Only the first item
-    //           has a non-null description ("A5 hardcover"). When false, that string must
+    //           has a non-null description ("OEM-grade replacement"). When false, that string must
     //           NOT appear in the PDF text. When true, it must appear. The extra sub-line
     //           per item with a description adds height, so Measure(true) > Measure(false).
     [Fact]
@@ -155,10 +155,10 @@ public sealed class ItemTableSectionTests
         string textDescOn = SectionTestBase.RenderSectionToPdfText(section, descOn, fonts);
 
         // Description must not appear when toggle is off.
-        Assert.DoesNotContain("A5 hardcover", textDescOff, StringComparison.Ordinal);
+        Assert.DoesNotContain("OEM-grade replacement", textDescOff, StringComparison.Ordinal);
 
         // Description must appear when toggle is on.
-        Assert.Contains("A5 hardcover", textDescOn, StringComparison.Ordinal);
+        Assert.Contains("OEM-grade replacement", textDescOn, StringComparison.Ordinal);
 
         // Geometric assertion: description sub-line must add height.
         float heightDescOff;

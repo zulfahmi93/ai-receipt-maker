@@ -99,8 +99,8 @@ public sealed class ItemTableHeaderCasingTests
         string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
         // Body row item names — these must still appear (unchanged).
-        Assert.Contains("Premium Notebook", text, StringComparison.Ordinal);
-        Assert.Contains("Ballpoint Pen Set", text, StringComparison.Ordinal);
+        Assert.Contains("Brake Disc (Front, Pair)", text, StringComparison.Ordinal);
+        Assert.Contains("Brake Pad (Front Set)", text, StringComparison.Ordinal);
     }
 
     private static bool IsWithinTolerance(SKColor actual, SKColor expected, int tolerance)

@@ -17,8 +17,10 @@ public sealed class PaymentSectionTests
     private const float Width = 360f;
 
     // T3b.16 — PaymentSection renders the first payment entry in the 2x2 grid.
-    //           The extracted PDF text must contain the payment method name ("Visa Credit Card"),
-    //           the card last-four digits ("1234"), and the auth code ("A7B3K9").
+    //           The extracted PDF text must contain the payment method name and
+    //           the formatted amount. Sample fixture is Cash with null
+    //           cardLastFour + authCode, so those cells render empty and the
+    //           grid still measures at the deterministic fixed 2-row height.
     [Fact]
     public void PaymentSection_SinglePayment_RendersCompactBlock()
     {
@@ -28,14 +30,14 @@ public sealed class PaymentSectionTests
 
         string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
-        Assert.Contains("Visa Credit Card", text, StringComparison.Ordinal);
-        Assert.Contains("1234", text, StringComparison.Ordinal);
-        Assert.Contains("A7B3K9", text, StringComparison.Ordinal);
+        Assert.Contains("Cash", text, StringComparison.Ordinal);
+        Assert.Contains("719.86", text, StringComparison.Ordinal);
     }
 
     // T3b.17 — PaymentSection 2x2 grid shows only the first payment entry.
-    //           A two-payment fixture (original Visa + Cash) must NOT contain "Cash"
-    //           in the rendered output (only the first payment fills the grid).
+    //           A two-payment fixture (sample Cash + extra "Voucher") must contain
+    //           "Cash" in the rendered output and must NOT contain "Voucher"
+    //           (only the first payment fills the grid).
     //           Measure(single) must be > Measure(empty) to prove the grid occupies space.
     [Fact]
     public void PaymentSection_MultiplePayments_RendersRows()
@@ -43,17 +45,17 @@ public sealed class PaymentSectionTests
         ReceiptData data = SectionTestBase.LoadSampleData();
 
         var p1 = data.Payments[0];
-        var p2 = new PaymentInfo { Method = "Cash", Amount = 10.00m };
+        var p2 = new PaymentInfo { Method = "Voucher", Amount = 10.00m };
         ReceiptData multi = data with { Payments = [p1, p2] };
         ReceiptData empty = data with { Payments = [] };
 
         using var fonts = new FontProvider();
         var section = new PaymentSection();
 
-        // 2x2 grid renders only the first payment — "Cash" (second) must not appear.
+        // 2x2 grid renders only the first payment — "Voucher" (second) must not appear.
         string multiText = SectionTestBase.RenderSectionToPdfText(section, multi, fonts);
-        Assert.Contains("Visa Credit Card", multiText, StringComparison.Ordinal);
-        Assert.DoesNotContain("Cash", multiText, StringComparison.Ordinal);
+        Assert.Contains("Cash", multiText, StringComparison.Ordinal);
+        Assert.DoesNotContain("Voucher", multiText, StringComparison.Ordinal);
 
         // Geometric assertion: empty payments = 0; single payment = positive fixed height.
         using var measureCtx = new RenderContext(fonts, resolvedLogo: null);

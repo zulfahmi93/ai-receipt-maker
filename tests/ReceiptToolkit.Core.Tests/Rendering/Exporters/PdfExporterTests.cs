@@ -62,13 +62,13 @@ public sealed class PdfExporterTests
 
     // T3d.3 — A round-tripped PDF must contain the business name and a recognisable
     //          slice of the grand total when text is extracted across all pages.
-    //          Using "57.05" as a single token avoids PdfPig's tendency to fuse
+    //          Using "719.86" as a single token avoids PdfPig's tendency to fuse
     //          adjacent text draws across whitespace (divergence #17/#18) — multi-word
-    //          phrases like "Elevate Studio Sdn Bhd" would be brittle. Business name
-    //          is two tokens with a deliberate space; "Elevate Studio" is the literal
+    //          phrases like "Kerani Auto Workshop Sdn Bhd" would be brittle. Business name
+    //          is two tokens with a deliberate space; "Kerani Auto Workshop" is the literal
     //          single-line string in the sample fixture. Grand total updated 2026-05-11
     //          when the fixture's hardcoded totals were realigned with the calculator's
-    //          autoCalculateTotals=true output (4.65 tax, 57.05 grand total).
+    //          autoCalculateTotals=true output (4.65 tax, 719.86 grand total).
     [Fact]
     public void Export_PdfText_ContainsBusinessNameAndGrandTotal()
     {
@@ -90,8 +90,8 @@ public sealed class PdfExporterTests
 
         string text = sb.ToString();
 
-        Assert.Contains("Elevate Studio", text, StringComparison.Ordinal);
-        Assert.Contains("57.05", text, StringComparison.Ordinal);
+        Assert.Contains("Kerani Auto Workshop", text, StringComparison.Ordinal);
+        Assert.Contains("719.86", text, StringComparison.Ordinal);
     }
 
     // T3d.4 — Page count is derived from total composed receipt height vs configured

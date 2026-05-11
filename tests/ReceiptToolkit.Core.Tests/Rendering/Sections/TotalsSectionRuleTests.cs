@@ -97,11 +97,14 @@ public sealed class TotalsSectionRuleTests
     // TotalsSection_MeasureGrowsByRulePadding
     // With the rule, Measure must exceed the no-rule sum by at least 5px
     // (ruleTopPadding=4 + ruleStrokeWidth=1 minimum).
-    // We compute the expected no-rule height for the sample fixture manually:
-    //   Sample sub-rows: Subtotal (always) + Discount (non-zero) + Tax (ShowTaxBreakdown=true) = 3 rows
+    // No-rule baseline for the workshop sample fixture:
+    //   Sub-rows: Subtotal (always) + Tax (ShowTaxBreakdown=true) = 2 rows
+    //             (DiscountTotal=0 and ServiceCharge=0 are both hidden.)
     //   No-rule Measure = rows*RowHeight + (rows-1)*RowGap + RowGap + TotalBarHeight
-    //                   = 3*16 + 2*4 + 4 + 22 = 48 + 8 + 4 + 22 = 82f
-    // With rule: must be ≥ 82 + 5 = 87f.
+    //                   = 2*16 + 1*4 + 4 + 22 = 32 + 4 + 4 + 22 = 62f
+    // With rule: must be ≥ 62 + 5 = 67f. Updated 2026-05-11 alongside the
+    // Elevate Studio → Kerani Auto Workshop fixture swap, which zeroed
+    // DiscountTotal and reduced the visible sub-row count from 3 to 2.
     [Fact]
     public void TotalsSection_MeasureGrowsByRulePadding()
     {
@@ -113,14 +116,10 @@ public sealed class TotalsSectionRuleTests
 
         float measured = section.Measure(Width, data, ctx);
 
-        // No-rule baseline for sample fixture (3 sub-rows: Subtotal + Discount + Tax).
-        // 3*16 + 2*4 + 4 + 22 = 82f.
-        // With rule adding at least ruleTopPadding(4) + ruleStrokeWidth(1) = 5px, expect >= 87.
-        const float NoRuleBaseline = 82f;
+        const float NoRuleBaseline = 62f;
         const float MinRuleOverhead = 5f;
 
         Assert.True(measured >= NoRuleBaseline + MinRuleOverhead,
-            $"Expected Measure >= {NoRuleBaseline + MinRuleOverhead} (no-rule baseline {NoRuleBaseline} + rule overhead {MinRuleOverhead}); got {measured}. " +
-            "Current code returns 82 (no rule). Add rule + padding to TotalsSection.");
+            $"Expected Measure >= {NoRuleBaseline + MinRuleOverhead} (no-rule baseline {NoRuleBaseline} + rule overhead {MinRuleOverhead}); got {measured}.");
     }
 }

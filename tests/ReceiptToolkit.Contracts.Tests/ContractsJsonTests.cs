@@ -59,14 +59,14 @@ public sealed class ContractsJsonTests
 
         Assert.NotNull(data);
         // business
-        Assert.Equal("Elevate Studio", data.Business.BusinessName);
+        Assert.Equal("Kerani Auto Workshop", data.Business.BusinessName);
         // items
         Assert.Equal(5, data.Items.Count);
         // payments
         Assert.Single(data.Payments);
-        Assert.Equal(57.05m, data.Payments[0].Amount);
+        Assert.Equal(719.86m, data.Payments[0].Amount);
         // totals
-        Assert.Equal(57.05m, data.Totals.GrandTotal);
+        Assert.Equal(719.86m, data.Totals.GrandTotal);
         // optional top-level nodes all resolved
         Assert.NotNull(data.Customer);
         Assert.NotNull(data.Cashier);
@@ -187,13 +187,13 @@ public sealed class ContractsJsonTests
                 "\"schemaVersion\": 1,",
                 "\"schemaVersion\": 1, \"someUnknownField\": \"ignored\",")
             .Replace(
-                "\"businessName\": \"Elevate Studio\",",
-                "\"businessName\": \"Elevate Studio\", \"unknownNested\": true,");
+                "\"businessName\": \"Kerani Auto Workshop\",",
+                "\"businessName\": \"Kerani Auto Workshop\", \"unknownNested\": true,");
 
         var data = ReceiptData.FromJson(augmented);
 
         Assert.NotNull(data);
-        Assert.Equal("Elevate Studio", data.Business.BusinessName);
+        Assert.Equal("Kerani Auto Workshop", data.Business.BusinessName);
     }
 
     // -------------------------------------------------------------------------

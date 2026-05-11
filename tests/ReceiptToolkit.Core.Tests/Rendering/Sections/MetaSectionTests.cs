@@ -34,11 +34,11 @@ public sealed class MetaSectionTests
         // locale="ms-MY"; DateTimeFormatter produces "18 Mei 2025" (Mei = Malay May).
         string expectedDate = DateTimeFormatter.FormatDate(full.Receipt.DateTime!, full.Options!);
 
-        Assert.Contains("INV-2025-06789", textFull, StringComparison.Ordinal);
-        Assert.Contains("Main Branch", textFull, StringComparison.Ordinal);
-        Assert.Contains("POS-03", textFull, StringComparison.Ordinal);
+        Assert.Contains("JOB-2025-06789", textFull, StringComparison.Ordinal);
+        Assert.Contains("Setapak Branch", textFull, StringComparison.Ordinal);
+        Assert.Contains("BAY-03", textFull, StringComparison.Ordinal);
         Assert.Contains("ORD-1024", textFull, StringComparison.Ordinal);
-        Assert.Contains("REF-778812", textFull, StringComparison.Ordinal);
+        Assert.Contains("REF-WXX1234", textFull, StringComparison.Ordinal);
         Assert.Contains(expectedDate, textFull, StringComparison.Ordinal);
 
         // Now drop terminalId + orderNumber and re-render: those values must vanish from
@@ -55,10 +55,10 @@ public sealed class MetaSectionTests
 
         string textReduced = SectionTestBase.RenderSectionToPdfText(section, reduced, fonts);
 
-        Assert.DoesNotContain("POS-03", textReduced, StringComparison.Ordinal);
+        Assert.DoesNotContain("BAY-03", textReduced, StringComparison.Ordinal);
         Assert.DoesNotContain("ORD-1024", textReduced, StringComparison.Ordinal);
-        Assert.Contains("INV-2025-06789", textReduced, StringComparison.Ordinal);
-        Assert.Contains("Main Branch", textReduced, StringComparison.Ordinal);
+        Assert.Contains("JOB-2025-06789", textReduced, StringComparison.Ordinal);
+        Assert.Contains("Setapak Branch", textReduced, StringComparison.Ordinal);
 
         const float Width = 360f;
         float heightFull;

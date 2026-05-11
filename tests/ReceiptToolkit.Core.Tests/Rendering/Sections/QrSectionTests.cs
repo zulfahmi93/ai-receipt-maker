@@ -5,7 +5,7 @@
 // Edge cases: ShowQrCode=false collapses Measure to 0f (T3b.18 geometric half);
 //             ShowQrCode=true renders a QR matrix with at least one non-white pixel
 //             in the finder-pattern region (T3b.18 pixel half);
-//             qrCodeLabel "Scan to view receipt" appears verbatim in rendered PDF
+//             qrCodeLabel "Scan to view job card" appears verbatim in rendered PDF
 //             text when ShowQrCode=true (T3b.19).
 
 using ReceiptToolkit.Contracts;
@@ -81,7 +81,7 @@ public sealed class QrSectionTests
             // qrLeft = (360 - 72) / 2 = 144.
             //
             // Finder-pattern geometry for QRCoder ECCLevel.L encoding
-            // "https://example.com/receipt/INV-2025-06789":
+            // "https://example.com/receipt/JOB-2025-06789":
             //   The QR version is deterministic for this value (~v3, 29 modules).
             //   cellSize = 72 / 29 ≈ 2.48 px.
             //   The top-left 7x7 finder pattern occupies modules [0..6, 0..6].
@@ -99,7 +99,7 @@ public sealed class QrSectionTests
     }
 
     // T3b.19 — QrSection renders the qrCodeLabel verbatim below the QR matrix.
-    //           Sample fixture has qrCodeLabel = "Scan to view receipt". The extracted
+    //           Sample fixture has qrCodeLabel = "Scan to view job card". The extracted
     //           PDF text must contain this string with an ordinal comparison; any
     //           normalisation (trimming, lowercasing) would cause test to fail, which
     //           is intentional — the label must be rendered as-is.
@@ -112,6 +112,6 @@ public sealed class QrSectionTests
 
         string text = SectionTestBase.RenderSectionToPdfText(section, data, fonts);
 
-        Assert.Contains("Scan to view receipt", text, StringComparison.Ordinal);
+        Assert.Contains("Scan to view job card", text, StringComparison.Ordinal);
     }
 }
