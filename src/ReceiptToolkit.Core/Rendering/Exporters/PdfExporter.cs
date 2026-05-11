@@ -58,20 +58,31 @@ public sealed class PdfExporter
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <returns>The PDF bytes (starting with the <c>%PDF-</c> magic).</returns>
-    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null);
+    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null, resolvedPaymentIcon: null);
 
     /// <summary>
     ///   Renders <paramref name="data"/> to a PDF byte stream using the supplied
-    ///   pre-resolved logo image.
+    ///   pre-resolved logo image. Delegates to the 3-arg overload with a null
+    ///   payment icon for source-compatibility.
+    /// </summary>
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
+        => Export(data, resolvedLogo, resolvedPaymentIcon: null);
+
+    /// <summary>
+    ///   Renders <paramref name="data"/> to a PDF byte stream using the supplied
+    ///   pre-resolved logo and payment-icon images.
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <param name="resolvedLogo">
     ///   Logo image already resolved from <c>business.businessLogoUrl</c>, or
-    ///   <see langword="null"/> for a logo-less render. The caller retains ownership
-    ///   of the handle; this method does not dispose it.
+    ///   <see langword="null"/> for a logo-less render. Caller-owned.
+    /// </param>
+    /// <param name="resolvedPaymentIcon">
+    ///   Payment-method icon image already resolved from <c>data.payments[0].icon</c>,
+    ///   or <see langword="null"/> for a placeholder icon column. Caller-owned.
     /// </param>
     /// <returns>The PDF bytes (starting with the <c>%PDF-</c> magic).</returns>
-    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo, SKImage? resolvedPaymentIcon)
     {
         ArgumentNullException.ThrowIfNull(data);
 
@@ -79,7 +90,7 @@ public sealed class PdfExporter
         // even if the underlying clock advances between reads.
         DateTime now = _clock.UtcNow.UtcDateTime;
 
-        using var ctx = new RenderContext(_fonts, resolvedLogo);
+        using var ctx = new RenderContext(_fonts, resolvedLogo) { ResolvedPaymentIcon = resolvedPaymentIcon };
         var renderer = new SkiaReceiptRenderer();
         SKSize size = renderer.Measure(data, ctx);
 

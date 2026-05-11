@@ -94,23 +94,33 @@ public sealed class PaymentSection : IReceiptSection
 
         SKTypeface normalFace = ctx.Fonts.GetTypeface(FontFamily, SKFontStyleWeight.Normal);
 
-        // Draw icon placeholder (reserved for future icon column).
+        // Icon column: draws the resolved payment-method icon when supplied via
+        // RenderContext.ResolvedPaymentIcon (which the generator pre-resolves from
+        // data.payments[0].icon). Falls back to a low-alpha muted rectangle when
+        // unresolved so the column still occupies space and the grid layout
+        // measures identically with or without an icon.
         float iconTop = origin.Y + ((CellRowHeight - IconPlaceholderHeight) / 2f);
-        using (var iconPaint = new SKPaint
+        SKRect iconRect = new(
+            origin.X,
+            iconTop,
+            origin.X + IconPlaceholderWidth - 4f,
+            iconTop + IconPlaceholderHeight);
+
+        if (ctx.ResolvedPaymentIcon is { } icon)
         {
-            Color = ThemeColors.ResolveOrDefault(
-                data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor).WithAlpha(60),
-            IsAntialias = false,
-            Style = SKPaintStyle.Fill,
-        })
+            using var iconPaint = new SKPaint { IsAntialias = true };
+            canvas.DrawImage(icon, iconRect, iconPaint);
+        }
+        else
         {
-            canvas.DrawRect(
-                new SKRect(
-                    origin.X,
-                    iconTop,
-                    origin.X + IconPlaceholderWidth - 4f,
-                    iconTop + IconPlaceholderHeight),
-                iconPaint);
+            using var placeholderPaint = new SKPaint
+            {
+                Color = ThemeColors.ResolveOrDefault(
+                    data.Theme?.MutedTextColor, ThemeColors.DefaultMutedTextColor).WithAlpha(60),
+                IsAntialias = false,
+                Style = SKPaintStyle.Fill,
+            };
+            canvas.DrawRect(iconRect, placeholderPaint);
         }
 
         float contentLeft = origin.X + IconPlaceholderWidth;

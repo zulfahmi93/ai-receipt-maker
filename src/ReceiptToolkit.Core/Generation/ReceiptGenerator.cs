@@ -90,8 +90,9 @@ public sealed class ReceiptGenerator : IDisposable
         cancellationToken.ThrowIfCancellationRequested();
         ReceiptData prepared = ValidateAndCalculate(data);
         using SKImage? logo = ResolveLogo(prepared);
+        using SKImage? paymentIcon = ResolvePaymentIcon(prepared);
         var exporter = new PdfExporter(_clock, _fonts);
-        return Task.FromResult(exporter.Export(prepared, logo));
+        return Task.FromResult(exporter.Export(prepared, logo, paymentIcon));
     }
 
     /// <summary>
@@ -110,8 +111,9 @@ public sealed class ReceiptGenerator : IDisposable
         cancellationToken.ThrowIfCancellationRequested();
         ReceiptData prepared = ValidateAndCalculate(data);
         using SKImage? logo = ResolveLogo(prepared);
+        using SKImage? paymentIcon = ResolvePaymentIcon(prepared);
         var exporter = new PngExporter(_fonts);
-        return Task.FromResult(exporter.Export(prepared, logo));
+        return Task.FromResult(exporter.Export(prepared, logo, paymentIcon));
     }
 
     /// <summary>
@@ -130,8 +132,9 @@ public sealed class ReceiptGenerator : IDisposable
         cancellationToken.ThrowIfCancellationRequested();
         ReceiptData prepared = ValidateAndCalculate(data);
         using SKImage? logo = ResolveLogo(prepared);
+        using SKImage? paymentIcon = ResolvePaymentIcon(prepared);
         var exporter = new SvgExporter(_fonts);
-        return Task.FromResult(exporter.Export(prepared, logo));
+        return Task.FromResult(exporter.Export(prepared, logo, paymentIcon));
     }
 
     /// <summary>
@@ -187,6 +190,20 @@ public sealed class ReceiptGenerator : IDisposable
         }
 
         return LogoResolver.Resolve(data.Business.BusinessLogoUrl);
+    }
+
+    // PaymentSection only renders the first payment entry per Phase 3c-polish
+    // cluster D (multi-payment height-growth invariant retired). Resolve the icon
+    // for that single entry so the same handle threads through PDF + PNG + SVG
+    // without per-format re-decode.
+    private static SKImage? ResolvePaymentIcon(ReceiptData data)
+    {
+        if (data.Payments.Count == 0)
+        {
+            return null;
+        }
+
+        return LogoResolver.Resolve(data.Payments[0].Icon);
     }
 
     private static void EnsureDirectoryExists(string path)

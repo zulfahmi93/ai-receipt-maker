@@ -51,6 +51,15 @@ public sealed class RenderContext : IDisposable
     public SKImage? ResolvedLogo { get; }
 
     /// <summary>
+    ///   The resolved payment-method icon image used by <c>PaymentSection</c>'s icon
+    ///   column, or <see langword="null"/> when unavailable. Same ownership rules as
+    ///   <see cref="ResolvedLogo"/> — caller-owned, not disposed by this context.
+    ///   Set as an object initializer at exporter construction so existing
+    ///   constructor call-sites remain source-compatible.
+    /// </summary>
+    public SKImage? ResolvedPaymentIcon { get; init; }
+
+    /// <summary>
     ///   When <see langword="true"/>, the composer paints a drop-shadow rectangle
     ///   behind the paper and <see cref="ReceiptToolkit.Contracts.ReceiptLayout"/>'s
     ///   measured canvas size grows by the shadow offset on the right and bottom edges.

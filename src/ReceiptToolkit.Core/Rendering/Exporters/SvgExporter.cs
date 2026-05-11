@@ -40,24 +40,35 @@ public sealed class SvgExporter
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <returns>The SVG bytes (UTF-8 XML starting with <c>&lt;svg</c>).</returns>
-    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null);
+    public byte[] Export(ReceiptData data) => Export(data, resolvedLogo: null, resolvedPaymentIcon: null);
 
     /// <summary>
     ///   Renders <paramref name="data"/> to an SVG byte stream using the supplied
-    ///   pre-resolved logo image.
+    ///   pre-resolved logo image. Delegates to the 3-arg overload with a null
+    ///   payment icon for source-compatibility.
+    /// </summary>
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
+        => Export(data, resolvedLogo, resolvedPaymentIcon: null);
+
+    /// <summary>
+    ///   Renders <paramref name="data"/> to an SVG byte stream using the supplied
+    ///   pre-resolved logo and payment-icon images.
     /// </summary>
     /// <param name="data">The receipt model.</param>
     /// <param name="resolvedLogo">
     ///   Logo image already resolved from <c>business.businessLogoUrl</c>, or
-    ///   <see langword="null"/> for a logo-less render. The caller retains ownership
-    ///   of the handle; this method does not dispose it.
+    ///   <see langword="null"/> for a logo-less render. Caller-owned.
+    /// </param>
+    /// <param name="resolvedPaymentIcon">
+    ///   Payment-method icon image already resolved from <c>data.payments[0].icon</c>,
+    ///   or <see langword="null"/> for a placeholder icon column. Caller-owned.
     /// </param>
     /// <returns>The SVG bytes (UTF-8 XML starting with <c>&lt;svg</c>).</returns>
-    public byte[] Export(ReceiptData data, SKImage? resolvedLogo)
+    public byte[] Export(ReceiptData data, SKImage? resolvedLogo, SKImage? resolvedPaymentIcon)
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        using var ctx = new RenderContext(_fonts, resolvedLogo);
+        using var ctx = new RenderContext(_fonts, resolvedLogo) { ResolvedPaymentIcon = resolvedPaymentIcon };
         var renderer = new SkiaReceiptRenderer();
         SKSize canvasSize = renderer.Measure(data, ctx);
 
