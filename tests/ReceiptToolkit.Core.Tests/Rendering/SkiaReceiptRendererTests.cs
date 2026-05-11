@@ -101,22 +101,15 @@ public sealed class SkiaReceiptRendererTests
 
         renderer.Render(canvas, data, ctx);
 
-        // Crude pixel-presence guard — paired with T3c.2's paper-colour corner assertion.
-        // Sample roughly mid-receipt at an x just inside the padded content column.
-        // The two tests catch different broken-renderer states:
-        //   T3c.2 catches a totally no-op Render — corner stays transparent black,
-        //         which fails the magenta corner assertion.
-        //   T3c.1 catches a Render that paints paper but skips Draw on sections —
-        //         midPixel would equal paper, which fails this NotEqual assertion.
-        // (Total no-op leaves midPixel transparent black, which differs from paper too,
-        //  so this assertion passes on its own — that path is owned by T3c.2.)
-        // If this guard ever flakes (mid-Y lands between item rows on a future fixture)
-        // the orchestrator may drop it without losing T3c.2's corner coverage.
-        SKColor paper = SKColor.Parse(data.Theme!.PaperColor!);
-        int sampleX = (int)padding + 4;
-        int sampleY = (int)(size.Height / 2);
-        SKColor midPixel = bitmap.GetPixel(sampleX, sampleY);
-        Assert.NotEqual(paper, midPixel);
+        // Crude pixel-presence guard dropped 2026-05-11 at Phase 3c-polish close —
+        // section height shifts from the 10 mockup-parity tasks (T3cP.1–T3cP.10) push
+        // the sample point onto paper between rows. The original comment authorised
+        // this fallback: "If this guard ever flakes (mid-Y lands between item rows on
+        // a future fixture) the orchestrator may drop it without losing T3c.2's
+        // corner coverage." T3c.2's magenta-corner assertion still catches the
+        // totally-no-op Render path; the "paints paper but skips Draw on sections"
+        // path is now covered by every section's own draw-presence test plus the
+        // golden byte-equality on Linux CI.
     }
 
     // T3c.2 — Renderer paints theme.paperColor as the background fill at (0,0,W,H) before
