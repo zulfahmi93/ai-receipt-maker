@@ -103,7 +103,9 @@ public sealed class FooterSection : IReceiptSection
                     y += gap;
                 }
 
-                DrawLine(canvas, origin.X, y, line, face, entry.FontSize, textColor);
+                float lineWidth = TextMeasurer.Measure(line, face, entry.FontSize).Width;
+                float centeredX = origin.X + ((width - lineWidth) / 2f);
+                DrawLine(canvas, centeredX, y, line, face, entry.FontSize, textColor);
                 y += slot;
                 firstBodyLine = false;
             }
@@ -130,7 +132,9 @@ public sealed class FooterSection : IReceiptSection
                             y += gap;
                         }
 
-                        DrawLine(canvas, origin.X, y, line, face, entry.FontSize, mutedColor);
+                        float lineWidth = TextMeasurer.Measure(line, face, entry.FontSize).Width;
+                        float centeredX = origin.X + ((width - lineWidth) / 2f);
+                        DrawLine(canvas, centeredX, y, line, face, entry.FontSize, mutedColor);
                         y += slot;
                         firstContactLine = false;
                     }
