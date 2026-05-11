@@ -56,8 +56,9 @@ public sealed class CustomerCashierSection : IReceiptSection
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(ctx);
 
-        int leftRows = MaterializeCustomerRows(data).Count;
-        int rightRows = MaterializeCashierRows(data).Count;
+        // Measure mirrors Draw's column order — see Draw's flipped order comment.
+        int leftRows = MaterializeCashierRows(data).Count;
+        int rightRows = MaterializeCustomerRows(data).Count;
         int rows = Math.Max(leftRows, rightRows);
 
         if (rows == 0)
@@ -75,8 +76,11 @@ public sealed class CustomerCashierSection : IReceiptSection
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(ctx);
 
-        List<(string Label, string Value)> leftRows = MaterializeCustomerRows(data);
-        List<(string Label, string Value)> rightRows = MaterializeCashierRows(data);
+        // Column order mirrors mockups/receipt.png: Cashier left, Customer right.
+        // Earlier Phase 3b layout placed Customer on the left; flipped 2026-05-11 at
+        // Phase 3c-polish follow-up.
+        List<(string Label, string Value)> leftRows = MaterializeCashierRows(data);
+        List<(string Label, string Value)> rightRows = MaterializeCustomerRows(data);
 
         int totalRows = Math.Max(leftRows.Count, rightRows.Count);
         if (totalRows == 0)
