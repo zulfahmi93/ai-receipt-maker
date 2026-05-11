@@ -29,7 +29,7 @@ public sealed class Phase3bVisualPreview
         ReceiptLayout layout = data.Layout ?? new ReceiptLayout();
         int width = layout.ReceiptWidth;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = width - (2 * padding);
 
         IReceiptSection[] sections =

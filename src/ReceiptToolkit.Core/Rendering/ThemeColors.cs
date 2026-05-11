@@ -1,3 +1,4 @@
+using ReceiptToolkit.Contracts;
 using SkiaSharp;
 
 namespace ReceiptToolkit.Core.Rendering;
@@ -73,4 +74,24 @@ internal static class ThemeColors
 
         return SKColor.TryParse(hex, out SKColor parsed) ? parsed : fallback;
     }
+
+    // 3c-polish A ---------------------------------------------------------------
+
+    /// <summary>
+    ///   Neutral fallback for general body text when <c>theme.bodyColor</c> is missing
+    ///   or unparseable. <see cref="SKColors.DarkGray"/> sits between black (primary text)
+    ///   and gray (muted text), providing a distinct mid-tone role for body copy. Section
+    ///   adoption is deferred to follow-up clusters.
+    /// </summary>
+    public static readonly SKColor DefaultBodyColor = SKColors.DarkGray; // 3c-polish A
+
+    /// <summary>
+    ///   Returns the parsed <see cref="SKColor"/> from <c>theme.BodyColor</c>, or
+    ///   <see cref="DefaultBodyColor"/> when <paramref name="theme"/> is
+    ///   <see langword="null"/>, <c>BodyColor</c> is null/whitespace, or the hex
+    ///   string fails <see cref="SKColor.TryParse(string, out SKColor)"/>.
+    /// </summary>
+    /// <param name="theme">The receipt theme; may be <see langword="null"/>.</param>
+    public static SKColor ResolveBodyColor(ReceiptTheme? theme) // 3c-polish A
+        => ResolveOrDefault(theme?.BodyColor, DefaultBodyColor);
 }

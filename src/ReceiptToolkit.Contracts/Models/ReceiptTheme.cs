@@ -23,4 +23,11 @@ public sealed record ReceiptTheme
 
     /// <summary>Overall page or container background color (hex).</summary>
     public string? BackgroundColor { get; init; }
+
+    /// <summary>
+    ///   Body text colour token (hex). When <see langword="null"/>,
+    ///   <c>ThemeColors.ResolveBodyColor</c> falls back to <c>ThemeColors.DefaultBodyColor</c>.
+    ///   Section adoption is deferred to follow-up clusters; this property is the contract anchor.
+    /// </summary>
+    public string? BodyColor { get; init; }
 }

@@ -45,7 +45,7 @@ public sealed class SkiaReceiptRendererTests
         ReceiptLayout layout = data.Layout!;
         int receiptWidth = layout.ReceiptWidth;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = receiptWidth - (2 * padding);
 
         // Mockup order — must match SkiaReceiptRenderer's internal sequence exactly.
@@ -196,7 +196,7 @@ public sealed class SkiaReceiptRendererTests
 
         ReceiptLayout layout = data.Layout!;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         // Independent re-derivation of TOTAL bar position. Renderer composition:
@@ -296,7 +296,7 @@ public sealed class SkiaReceiptRendererTests
 
         ReceiptLayout layout = data.Layout!;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         // Same re-derivation as T3c.3 — TOTAL bar mid-Y from independent geometry.
@@ -447,7 +447,7 @@ public sealed class SkiaReceiptRendererTests
 
         ReceiptLayout layout = data.Layout!;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         // Independent re-derivation of pre-Totals stack — mirrors T3c.3 / T3c.4
@@ -597,7 +597,7 @@ public sealed class SkiaReceiptRendererTests
 
         ReceiptLayout layout = data.Layout!;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         IReceiptSection[] preTotals =
@@ -689,7 +689,7 @@ public sealed class SkiaReceiptRendererTests
 
         ReceiptLayout layout = data.Layout!;
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? SkiaReceiptRenderer.DefaultSectionGap;
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         // Geometry — gap between Header (idx 0) and Title (idx 1). yTitleTop =

@@ -9,8 +9,12 @@ public sealed record ReceiptLayout
     /// <summary>Inner padding around receipt content in pixels.</summary>
     public int Padding { get; init; }
 
-    /// <summary>Vertical gap between receipt sections in pixels.</summary>
-    public int SectionGap { get; init; }
+    /// <summary>
+    ///   Vertical gap between receipt sections in pixels. When <see langword="null"/>,
+    ///   the composer falls back to its internal <c>DefaultSectionGap</c> constant so
+    ///   existing fixtures render byte-equal without setting this field.
+    /// </summary>
+    public float? SectionGap { get; init; }
 
     /// <summary>Corner border radius of the receipt container in pixels.</summary>
     public int BorderRadius { get; init; }

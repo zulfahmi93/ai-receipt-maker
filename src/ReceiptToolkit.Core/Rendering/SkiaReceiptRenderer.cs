@@ -76,6 +76,14 @@ public sealed class SkiaReceiptRenderer
     ///   no blur — keeps tests deterministic and pixel-sampling reliable.</summary>
     private const float ShadowOffset = 8f;
 
+    /// <summary>
+    ///   Fallback inter-section gap (px) used when <c>data.Layout?.SectionGap</c> is
+    ///   <see langword="null"/>. Value matches the <c>sectionGap: 18</c> shipped in
+    ///   <c>examples/sample_receipt_data.json</c> so existing fixtures render
+    ///   byte-equal when the new nullable field is absent from the JSON.
+    /// </summary>
+    internal const float DefaultSectionGap = 18f;
+
     private static readonly float[] DashIntervals = [6f, 4f];
     private static readonly float[] DotIntervals = [2f, 3f];
 
@@ -142,7 +150,7 @@ public sealed class SkiaReceiptRenderer
 
         ReceiptLayout layout = data.Layout ?? new ReceiptLayout();
         float padding = layout.Padding;
-        float sectionGap = layout.SectionGap;
+        float sectionGap = layout.SectionGap ?? DefaultSectionGap;
         float contentWidth = layout.ReceiptWidth - (2 * padding);
 
         List<float> heights = MeasureSections(contentWidth, data, ctx);
@@ -226,8 +234,9 @@ public sealed class SkiaReceiptRenderer
             }
         }
 
+        float gap = layout.SectionGap ?? DefaultSectionGap;
         return sum
-            + (layout.SectionGap * Math.Max(0, visibleCount - 1))
+            + (gap * Math.Max(0, visibleCount - 1))
             + (2 * layout.Padding);
     }
 

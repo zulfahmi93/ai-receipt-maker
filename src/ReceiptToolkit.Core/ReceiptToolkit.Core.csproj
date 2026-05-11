@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ReceiptToolkit.Core.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ReceiptToolkit.Contracts\ReceiptToolkit.Contracts.csproj" />
   </ItemGroup>
 
