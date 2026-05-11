@@ -60,6 +60,16 @@ internal static class ThemeColors
     public static readonly SKColor DefaultPaperColor = SKColors.White;
 
     /// <summary>
+    ///   Neutral fallback for muted label text (uppercase section labels such as
+    ///   "RECEIPT NO.", column headers "ITEM / QTY / PRICE / TOTAL") when the theme
+    ///   value is missing or unparseable. Mid-grey <c>#8A8A8A</c> is visually distinct
+    ///   from both primary text (black) and muted body text (gray) while remaining
+    ///   legible against a white paper background.
+    /// </summary>
+    // 3c-polish B
+    public static readonly SKColor DefaultMutedLabelColor = new(0x8A, 0x8A, 0x8A);
+
+    /// <summary>
     ///   Returns the parsed <see cref="SKColor"/> from <paramref name="hex"/>, or
     ///   <paramref name="fallback"/> when <paramref name="hex"/> is null, whitespace, or
     ///   does not satisfy <see cref="SKColor.TryParse(string, out SKColor)"/>.
