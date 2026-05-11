@@ -62,7 +62,7 @@ internal static class ThemeColors
 
     /// <summary>
     ///   Neutral fallback for muted label text — uppercase section labels such as
-    ///   "RECEIPT NO." and "DATE & TIME" (MetaSection), column headers
+    ///   "RECEIPT NO." and "DATE &amp; TIME" (MetaSection), column headers
     ///   "ITEM / QTY / PRICE / TOTAL" (ItemTableSection), and 2×2 grid cell labels
     ///   "PAYMENT METHOD / AMOUNT PAID / CARD ENDING / AUTH CODE" (PaymentSection).
     ///   Mid-grey <c>#8A8A8A</c> is visually distinct from both primary text (black)
