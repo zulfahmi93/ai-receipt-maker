@@ -1,0 +1,825 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "ReceiptToolkit.Api | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5273/"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "ReceiptEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/receipts/validate": {
+      "post": {
+        "tags": [
+          "ReceiptEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/receipts/pdf": {
+      "post": {
+        "tags": [
+          "ReceiptEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/receipts/png": {
+      "post": {
+        "tags": [
+          "ReceiptEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/receipts/both": {
+      "post": {
+        "tags": [
+          "ReceiptEndpoints"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/receipts/sample": {
+      "post": {
+        "tags": [
+          "ReceiptEndpoints"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BusinessInfo": {
+        "type": "object",
+        "properties": {
+          "businessName": {
+            "type": "string",
+            "description": "Trading name displayed at the top of the receipt."
+          },
+          "businessTagline": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional tagline shown beneath the business name."
+          },
+          "businessLogoUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL of the business logo image."
+          },
+          "businessAddress": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Physical address of the business."
+          },
+          "businessEmail": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Contact email address for the business."
+          },
+          "businessPhone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Contact phone number for the business."
+          },
+          "businessWebsite": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Business website URL."
+          },
+          "socialHandle": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Social media handle for the business."
+          },
+          "taxRegistrationNumber": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Tax or VAT registration number."
+          }
+        },
+        "description": "Business information displayed in the receipt header."
+      },
+      "CashierInfo": {
+        "type": "object",
+        "properties": {
+          "cashierName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Full name of the cashier."
+          },
+          "cashierId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Employee or staff identifier for the cashier."
+          }
+        },
+        "description": "Information about the cashier or operator who processed the transaction."
+      },
+      "CustomerInfo": {
+        "type": "object",
+        "properties": {
+          "customerName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Display name of the customer."
+          },
+          "customerId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Unique identifier for the customer in the loyalty or CRM system."
+          },
+          "customerPhone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Customer contact phone number."
+          },
+          "customerEmail": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Customer contact email address."
+          }
+        },
+        "description": "Customer information associated with the transaction."
+      },
+      "FooterInfo": {
+        "type": "object",
+        "properties": {
+          "thankYouMessage": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Primary thank-you message shown to the customer."
+          },
+          "footerNote": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Additional note displayed in the footer area."
+          },
+          "returnPolicy": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Return or refund policy statement."
+          },
+          "legalNote": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Legal disclaimer or compliance note."
+          },
+          "customFooterLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Ordered list of additional free-form footer lines."
+          }
+        },
+        "description": "Footer content printed at the bottom of the receipt."
+      },
+      "PaymentInfo": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Human-readable name of the payment method (e.g. \"Visa Credit Card\")."
+          },
+          "amount": {
+            "description": "Amount paid with this tender, serialized as a JSON string to preserve monetary scale.",
+            "format": "double"
+          },
+          "cardLastFour": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Last four digits of the card used, if applicable."
+          },
+          "authCode": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Authorization code returned by the payment processor."
+          },
+          "transactionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Unique transaction identifier from the payment processor."
+          }
+        },
+        "description": "Payment tender details for one payment method used on this receipt."
+      },
+      "QrInfo": {
+        "type": "object",
+        "properties": {
+          "qrCodeValue": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Data encoded into the QR code (typically a URL)."
+          },
+          "qrCodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Instructional label displayed below the QR code."
+          },
+          "reviewUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL for customers to leave a review."
+          },
+          "digitalReceiptUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL where the customer can view the digital receipt."
+          },
+          "supportUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL for customer support."
+          }
+        },
+        "description": "QR code and supplemental URL information printed on the receipt."
+      },
+      "ReceiptData": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Schema version of the receipt document format. Defaults to `1`.",
+            "format": "int32",
+            "default": 1
+          },
+          "business": {
+            "description": "Business information shown in the receipt header.",
+            "$ref": "#/components/schemas/BusinessInfo"
+          },
+          "receipt": {
+            "description": "Transaction metadata such as receipt number, date, and branch.",
+            "$ref": "#/components/schemas/ReceiptMetadata"
+          },
+          "customer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional customer information associated with the transaction.",
+                "$ref": "#/components/schemas/CustomerInfo"
+              }
+            ]
+          },
+          "cashier": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional cashier or operator information.",
+                "$ref": "#/components/schemas/CashierInfo"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceiptItem"
+            },
+            "description": "Ordered list of line items purchased in this transaction."
+          },
+          "totals": {
+            "description": "Aggregated monetary totals for the receipt.",
+            "$ref": "#/components/schemas/ReceiptTotals"
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentInfo"
+            },
+            "description": "One or more payment tenders used to settle this transaction."
+          },
+          "qr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional QR code and supplemental URL information.",
+                "$ref": "#/components/schemas/QrInfo"
+              }
+            ]
+          },
+          "footer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional footer content printed at the bottom of the receipt.",
+                "$ref": "#/components/schemas/FooterInfo"
+              }
+            ]
+          },
+          "theme": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional color theme tokens for receipt rendering.",
+                "$ref": "#/components/schemas/ReceiptTheme"
+              }
+            ]
+          },
+          "layout": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional layout and spacing configuration.",
+                "$ref": "#/components/schemas/ReceiptLayout"
+              }
+            ]
+          },
+          "options": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Optional display and behavior options.",
+                "$ref": "#/components/schemas/ReceiptOptions"
+              }
+            ]
+          }
+        },
+        "description": "Root model representing a complete receipt document."
+      },
+      "ReceiptItem": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Stock-keeping unit identifier for the item."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the item."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional short description of the item."
+          },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Number of units purchased.",
+            "format": "int32"
+          },
+          "unit": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Unit of measure label (e.g. pcs, kg)."
+          },
+          "unitPrice": {
+            "description": "Price per unit, serialized as a JSON string to preserve monetary scale.",
+            "format": "double"
+          },
+          "discount": {
+            "description": "Discount applied to this line item, serialized as a JSON string.",
+            "format": "double"
+          },
+          "taxRate": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "description": "Applicable tax rate as a fractional value (e.g. 0.0825 for 8.25%).",
+            "format": "double"
+          },
+          "total": {
+            "description": "Line total after discount, serialized as a JSON string to preserve monetary scale.",
+            "format": "double"
+          }
+        },
+        "description": "A single line item on the receipt."
+      },
+      "ReceiptLayout": {
+        "type": "object",
+        "properties": {
+          "receiptWidth": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Total width of the receipt in pixels.",
+            "format": "int32"
+          },
+          "padding": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Inner padding around receipt content in pixels.",
+            "format": "int32"
+          },
+          "sectionGap": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Vertical gap between receipt sections in pixels.",
+            "format": "int32"
+          },
+          "borderRadius": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Corner border radius of the receipt container in pixels.",
+            "format": "int32"
+          },
+          "showShadow": {
+            "type": "boolean",
+            "description": "Whether to render a drop shadow behind the receipt."
+          },
+          "showPerforatedBottom": {
+            "type": "boolean",
+            "description": "Whether to render a perforated-edge decoration at the bottom."
+          },
+          "dividerStyle": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Style of section dividers (e.g. \"solid\", \"dashed\")."
+          }
+        },
+        "description": "Layout and spacing configuration for the rendered receipt."
+      },
+      "ReceiptMetadata": {
+        "type": "object",
+        "properties": {
+          "receiptTitle": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Title printed at the top of the receipt (e.g. \"RECEIPT\")."
+          },
+          "receiptNumber": {
+            "type": "string",
+            "description": "Unique receipt or invoice number."
+          },
+          "dateTime": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Date and time of the transaction in ISO 8601 format."
+          },
+          "branchName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Name of the branch or location where the transaction occurred."
+          },
+          "terminalId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Identifier of the POS terminal that processed the transaction."
+          },
+          "orderNumber": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Order number associated with the transaction."
+          },
+          "referenceNumber": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "External reference number for the transaction."
+          }
+        },
+        "description": "Metadata describing the receipt transaction itself."
+      },
+      "ReceiptOptions": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "ISO 4217 currency code (e.g. \"MYR\")."
+          },
+          "currencySymbol": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Currency symbol displayed on the receipt (e.g. \"RM\")."
+          },
+          "locale": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "BCP 47 locale tag used for number and date formatting (e.g. \"ms-MY\")."
+          },
+          "dateFormat": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Date format pattern applied to the transaction date."
+          },
+          "timeFormat": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Time format pattern applied to the transaction time."
+          },
+          "showItemDescription": {
+            "type": "boolean",
+            "description": "Whether to display the item description line beneath each item name."
+          },
+          "showSku": {
+            "type": "boolean",
+            "description": "Whether to display the SKU code for each line item."
+          },
+          "showTaxBreakdown": {
+            "type": "boolean",
+            "description": "Whether to display an itemized tax breakdown section."
+          },
+          "showQrCode": {
+            "type": "boolean",
+            "description": "Whether to render the QR code block on the receipt."
+          },
+          "showLogo": {
+            "type": "boolean",
+            "description": "Whether to render the business logo on the receipt."
+          },
+          "showFooterContact": {
+            "type": "boolean",
+            "description": "Whether to display contact information in the footer."
+          },
+          "autoCalculateTotals": {
+            "type": "boolean",
+            "description": "Whether totals should be automatically calculated from line items."
+          }
+        },
+        "description": "Display and behavior options for receipt generation."
+      },
+      "ReceiptTheme": {
+        "type": "object",
+        "properties": {
+          "paperColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Background color of the receipt paper (hex)."
+          },
+          "textColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Primary text color (hex)."
+          },
+          "mutedTextColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Secondary or muted text color used for labels and metadata (hex)."
+          },
+          "accentColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Accent color used for headings and highlights (hex)."
+          },
+          "dividerColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Color used for divider lines between sections (hex)."
+          },
+          "highlightColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Highlight background color for totals or special rows (hex)."
+          },
+          "backgroundColor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Overall page or container background color (hex)."
+          }
+        },
+        "description": "Color theme tokens used to render the receipt UI."
+      },
+      "ReceiptTotals": {
+        "type": "object",
+        "properties": {
+          "subtotal": {
+            "description": "Sum of all line item totals before discounts and charges.",
+            "format": "double"
+          },
+          "discountTotal": {
+            "description": "Total discount deducted from the subtotal.",
+            "format": "double"
+          },
+          "serviceCharge": {
+            "description": "Service charge applied to the transaction.",
+            "format": "double"
+          },
+          "taxLabel": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Display label for the tax line (e.g. \"Tax (8.25%)\")."
+          },
+          "taxTotal": {
+            "description": "Total tax amount charged.",
+            "format": "double"
+          },
+          "roundingAdjustment": {
+            "description": "Rounding adjustment applied to reach the final amount.",
+            "format": "double"
+          },
+          "grandTotal": {
+            "description": "Final amount due after all adjustments.",
+            "format": "double"
+          }
+        },
+        "description": "Aggregated monetary totals for the receipt."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "ReceiptEndpoints"
+    }
+  ]
+}

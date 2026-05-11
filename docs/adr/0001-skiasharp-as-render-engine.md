@@ -12,7 +12,9 @@ The toolkit must produce PDF, PNG, and (optionally) SVG receipts from one shared
 
 ## Decision
 
-Use **SkiaSharp 3.119.2** as the only render engine. One `IReceiptRenderer.Render(SKCanvas, ReceiptData)` is invoked against three different canvas sources to produce PDF/PNG/SVG.
+Use **SkiaSharp 4.147.0-preview.1.1** as the only render engine. The concrete
+`SkiaReceiptRenderer` composes receipt sections once against `SKCanvas`; the
+exporters provide three canvas backends for PDF, PNG, and SVG.
 
 ## Consequences
 
@@ -28,4 +30,7 @@ Use **SkiaSharp 3.119.2** as the only render engine. One `IReceiptRenderer.Rende
 
 ## Reversibility
 
-The renderer sits behind `IReceiptRenderer`. If SkiaSharp manual layout proves prohibitive, swap to QuestPDF without touching Contracts, CLI, API, Bot, or Flutter app.
+The section-composed `SkiaReceiptRenderer` is isolated inside
+`ReceiptToolkit.Core`. If SkiaSharp manual layout proves prohibitive, a future
+renderer swap should not require changing Contracts, CLI, API, Bot, or Flutter
+app request/response contracts.
