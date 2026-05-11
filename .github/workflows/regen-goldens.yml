@@ -16,6 +16,13 @@ permissions:
   contents: write
   pull-requests: write
 
+# Opt every JavaScript action into Node.js 24 ahead of the 2026-06-02 forced
+# migration on GitHub-hosted runners. Pinned action versions (checkout@v4,
+# setup-dotnet@v4, peter-evans/create-pull-request@v6) ship the Node 24
+# runtime once this flag is set; no action-version churn required.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   regen:
     name: Regenerate golden PDF + PNG
